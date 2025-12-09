@@ -1,0 +1,64 @@
+\chapter{Diseño del sistema}
+
+\section{Arquitectura general}
+
+La solución propuesta sigue una arquitectura cliente-servidor extendida con un nodo blockchain. De forma esquemática, el sistema consta de:
+
+\begin{itemize}
+    \item \textbf{Front-end web:} Interfaz de usuario (en un navegador) desarrollada con un framework moderno (p.ej. React o Angular). Aquí el votante o administrador interactúa mediante formularios (login, selección de candidatos, etc.).
+    \item \textbf{Servidor de aplicación:} Back-end en [Node.js/Express o Django/Python], que expone APIs REST para gestionar la lógica electoral. Este servidor se conecta con la base de datos relacional y con la red blockchain.
+    \item \textbf{Base de datos relacional:} Almacena la información operativa: tablas \texttt{User}, \texttt{Election}, \texttt{Candidate}, \texttt{VoterRegister}, y las referencias de voto (\texttt{VoteRecord}). Siguiendo la lógica de negocio, la BD guarda solo los metadatos necesarios y la referencia al voto publicado (hash, txID), manteniendo separada la fuente de verdad (blockchain).
+    \item \textbf{Nodo blockchain:} Nodo de la red blockchain seleccionada (pública o privada). Este nodo almacena la cadena de bloques donde se graban las transacciones de voto. El servidor envía transacciones al nodo (por ejemplo, usando Web3.js con Ethereum) y luego recibe el identificador de transacción.
+\end{itemize}
+
+Este diseño de “3 capas más blockchain” está inspirado en la guía sugerida, que propone diagramas de componentes mostrando frontend, servidor, base de datos y nodo blockchain. Cada módulo se comunica de forma clara: el front-end consume APIs del servidor para operaciones usuarias; el servidor hace consultas a la BD para autenticación/consulta, y simultáneamente interactúa con el nodo blockchain para publicar votos. El diagrama UML de despliegue (no mostrado aquí) ilustraría cómo estos componentes se distribuyen en hardware o servicios en la nube.
+
+\section{Diseño de la base de datos}
+
+El modelo entidad-relación del sistema incluye las principales entidades definidas en la lógica de negocio. Se propone al menos las siguientes tablas:
+
+\begin{itemize}
+    \item \textbf{User:} Campos básicos de usuario: \texttt{id}, \texttt{email} (único), \texttt{full\_name}, \texttt{password\_hash}, \texttt{metadata}. El usuario no tiene rol fijo; su función depende de las relaciones con otras entidades.
+    \item \textbf{Election:} Define cada elección con campos como \texttt{id}, \texttt{creator\_user\_id}, \texttt{title}, \texttt{description}, \texttt{start\_datetime}, \texttt{end\_datetime}, \texttt{type}, \texttt{max\_choices} y \texttt{status} (activo o cerrado).
+    \item \textbf{Candidate:} Cada candidato asociado a una elección, con \texttt{id}, \texttt{election\_id}, \texttt{user\_id}, \texttt{display\_name}, \texttt{bio} y \texttt{photo} (si aplica).
+    \item \textbf{VoterRegister:} Tabla que cruza \texttt{election\_id} con \texttt{user\_id} e incluye campos de control: \texttt{can\_vote} (boolean para autorización), \texttt{has\_voted} (boolean para unicidad) y \texttt{verified\_by\_external\_system} (boolean para marcado externo).
+    \item \textbf{VoteRecord:} Cada voto emitido genera un registro local: \texttt{vote\_record\_id}, \texttt{election\_id}, \texttt{user\_id}, \texttt{vote\_hash} (hash criptográfico del voto), \texttt{blockchain\_tx\_id} (ID de la transacción en la cadena) y \texttt{published\_at} (timestamp de publicación). Esta tabla no almacena el contenido del voto, solo la referencia en blockchain.
+\end{itemize}
+
+Las relaciones se definen mediante claves externas (por ejemplo, \texttt{Election.creator\_user\_id} referencia a \texttt{User.id}, \texttt{Candidate.election\_id} a \texttt{Election.id}, etc.). Un diagrama de clases UML (paradigmático) mostraría estas entidades y sus atributos. La imposibilidad de voto múltiple se apoya en el valor único de \texttt{user\_id} en \texttt{VoterRegister} por elección y en la bandera \texttt{has\_voted}. En conjunto, este diseño de base de datos asegura que la lógica electoral pueda implementarse de forma coherente y eficiente.
+
+\section{Diseño de contratos inteligentes (blockchain)}
+
+En la capa blockchain se desarrollarán uno o varios contratos inteligentes que gestionen la votación. Por ejemplo, un contrato \texttt{Eleccion} podría exponer funciones para registrar un voto (\texttt{registerVote}) recibiendo parámetros como \texttt{voter\_hash} y lista de \texttt{choices}. La lógica del contrato utilizaría la estructura definida para el voto: combinaría los datos (\texttt{election\_id}, \texttt{voter\_hash}, \texttt{choices}, \texttt{timestamp}) y calcularía el \texttt{vote\_hash} internamente usando SHA-256, luego emitiría un evento con ese hash almacenado. En Solidity, este contrato tendría una función equivalente a “registrar voto” cuyo código clave se documentará en la tesis.
+
+\begin{itemize}
+    \item \textbf{Validación previa:} El contrato solo debería aceptar votos de \texttt{election\_id} válidos y de votantes habilitados.
+    \item \textbf{Registro del voto:} Al ejecutar \texttt{registerVote(voterHash, choices)}, el contrato generaría el \texttt{vote\_hash} y lo almacenaría (p. ej., en una lista interna o emitiéndolo como evento).
+    \item \textbf{Confirmación:} La función retorna o registra el ID de transacción, que luego el servidor usará para guardar en la base de datos local.
+\end{itemize}
+
+La elección de la plataforma (p.ej. Ethereum) permite aprovechar contratos inteligentes nativos; alternativamente se podría usar Hyperledger Fabric con un chaincode, pero Ethereum es apropiado para este prototipo.
+
+\section{Diseño de la interfaz de usuario (UI)}
+
+La interfaz de usuario se estructurará en varias pantallas principales:
+
+\begin{itemize}
+    \item \textbf{Login/Registro:} Formulario para autenticarse o crear cuenta. Se mostrarán mensajes de error claros en caso de credenciales incorrectas.
+    \item \textbf{Panel del administrador:} Donde se pueden crear nuevas elecciones, así como gestionar candidatos y votantes autorizados.
+    \item \textbf{Pantalla de votación:} Interfaz donde el votante autorizado elige candidatos (p. ej. mediante checkboxes), limitada a \texttt{max\_choices}. Se pedirá confirmación antes de enviar el voto.
+    \item \textbf{Resultados/Auditoría:} Una vez cerrada la elección, se mostrará el conteo de votos por candidato. Habrá opción para “verificar blockchain”, presentando los \texttt{vote\_hash} almacenados.
+\end{itemize}
+
+El diseño seguirá principios de usabilidad y accesibilidad. Cada componente de UI se documentará con una breve descripción en la tesis. Se puede utilizar un framework responsive como Bootstrap o Material UI.
+
+\section{Diagramas UML}
+
+Se incluirán diagramas UML tanto estáticos como dinámicos relevantes:
+
+\begin{itemize}
+    \item Diagrama de clases mostrando las clases principales (\texttt{User}, \texttt{Election}, \texttt{Candidate}, \texttt{VoterRegister}, \texttt{VoteRecord}, etc.) con sus atributos y asociaciones.
+    \item Diagrama de secuencia que describa el proceso de votación completo: un votante autenticado solicita votar, el sistema comprueba autorizaciones, forma la transacción, la envía a blockchain y recibe confirmación, actualizando luego la base de datos.
+\end{itemize}
+
+Estos diagramas ayudan a verificar visualmente la integridad del diseño y su correspondencia con los casos de uso. Estarán etiquetados y referenciados en el texto.

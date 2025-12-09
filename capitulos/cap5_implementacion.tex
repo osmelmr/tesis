@@ -1,0 +1,70 @@
+\chapter{Implementación}
+
+\section{Tecnologías y entorno de desarrollo}
+
+El desarrollo se basó en tecnologías modernas de software libre. Para el front-end se utilizó React con TypeScript, proporcionando interfaces dinámicas y reactivas. En el back-end se eligió Node.js con Express, debido a su amplia compatibilidad con librerías de blockchain (como Web3.js o Ethers.js) y su facilidad de uso. La base de datos relacional se implementó en PostgreSQL, aunque la guía permite alternativas como MySQL o MongoDB. Para la parte blockchain, se empleó Ethereum (en red de prueba), escribiendo los contratos inteligentes en Solidity.
+
+En resumen, el stack tecnológico es típico de aplicaciones web (Angular/React en frontend, Node.js/Python en backend, MySQL/PostgreSQL en BD), complementado con herramientas de blockchain. El entorno de desarrollo incluyó VSCode como IDE, Node Package Manager (npm) para dependencias, Truffle o Hardhat para compilar y desplegar contratos, y herramientas de testeo (Mocha/Chai para JavaScript). Se trabajó en un sistema operativo compatible (Linux/macOS) y se utilizaron contenedores (Docker) para los servicios, asegurando reproducibilidad. Este entorno permitió integrar rápidamente la lógica de negocio con la infraestructura requerida.
+
+\section{Implementación del backend}
+
+El servidor de Node.js implementa una API REST que gestiona el flujo electoral. Entre los módulos más importantes se encuentran:
+
+\begin{itemize}
+    \item \textbf{AuthService:} Encargado del registro e inicio de sesión de usuarios. Utiliza bcrypt para almacenar contraseñas y genera tokens JWT para las sesiones.
+    \item \textbf{ElectionService:} Permite crear nuevas elecciones y gestionar sus atributos. Al crear una elección, se inserta el registro en la tabla \texttt{Election} y se inicializa su \texttt{status}.
+    \item \textbf{CandidateService:} Gestiona el registro de candidatos enlazándolos con elecciones existentes.
+    \item \textbf{VoterService:} Controla la habilitación de votantes. Valida datos e inserta entradas en \texttt{VoterRegister} con \texttt{can\_vote = true}.
+    \item \textbf{VoteService:} Procesa los votos emitidos. Su lógica incluye:
+    \begin{enumerate}
+        \item Verificar que el votante esté autenticado y autorizado (\texttt{can\_vote = true} y \texttt{has\_voted = false}).
+        \item Construir la estructura de voto según la lógica: recoger \texttt{election\_id}, calcular \texttt{voter\_hash} (SHA-256 de la ID del usuario concatenada con un nonce) y obtener los candidatos seleccionados.
+        \item Calcular \texttt{vote\_hash} (SHA-256 de \{\texttt{election\_id, voter\_hash, choices, timestamp}\}).
+        \item Firmar la transacción con la clave privada del servidor.
+        \item Enviar la transacción al contrato inteligente en Ethereum usando Web3.js, y esperar confirmación.
+        \item Recibir el \texttt{blockchain\_tx\_id} y guardar un registro en \texttt{VoteRecord}. Se actualiza \texttt{VoterRegister.has\_voted = true}.
+    \end{enumerate}
+\end{itemize}
+
+Se complementa con rutas Express y controladores que exponen endpoints REST. Se incluyen tests unitarios con Mocha y Chai para funciones críticas, como generación de hashes y verificación de \texttt{has\_voted}.
+
+\section{Implementación del frontend}
+
+El frontend se desarrolló con React consumiendo la API REST del backend. Contiene componentes para:
+
+\begin{itemize}
+    \item Inicio de sesión y registro.
+    \item Creación de elecciones.
+    \item Gestión de candidatos y votantes.
+    \item Emisión de votos.
+    \item Visualización de resultados.
+\end{itemize}
+
+Cada componente realiza peticiones al servidor usando Axios y maneja respuestas JSON. Incluye validaciones en tiempo real (por ejemplo, no exceder \texttt{max\_choices}). Para la emisión de voto, la selección del usuario se envía mediante POST al backend, mostrando mensajes de éxito o error. La interfaz indica claramente estados como “Procesando transacción en blockchain…”. Se aplicaron medidas de accesibilidad: formularios etiquetados, navegación por teclado y contraste adecuado.
+
+\section{Contratos inteligentes y blockchain}
+
+Los contratos inteligentes se implementaron en Solidity para Ethereum. El contrato principal \texttt{Eleccion} contiene una función \texttt{registrarVoto(address voterHash, uint[] memory choices)} que:
+
+\begin{enumerate}
+    \item Calcula el \texttt{vote\_hash} con los datos recibidos.
+    \item Emite un evento log con el hash del voto.
+    \item Retorna el hash de la transacción al backend.
+\end{enumerate}
+
+El código fue probado con Truffle/Hardhat para asegurar compilación y ejecución correctas. El backend construye la transacción Ethereum, la firma localmente con la clave del nodo y la envía a la red de prueba. La red confirmó cada transacción en segundos, garantizando que cada voto sea inmutable y auditable.
+
+\section{Seguridad y cifrado}
+
+Se implementaron mecanismos de seguridad en varias capas:
+
+\begin{itemize}
+    \item \textbf{Comunicación segura:} Todo el tráfico viaja por HTTPS (TLS).
+    \item \textbf{Almacenamiento de contraseñas:} Hashed con bcrypt y sal.
+    \item \textbf{Control de votación:} Validación de \texttt{can\_vote} y \texttt{has\_voted} antes de aceptar votos.
+    \item \textbf{Criptografía en transacciones:} Uso de claves ECDSA para firmar transacciones Ethereum. El \texttt{voter\_hash} representa al votante sin revelar su identidad.
+    \item \textbf{Anonimato y privacidad:} Solo se publica \texttt{vote\_hash} en blockchain. El contenido del voto permanece cifrado dentro del hash.
+    \item \textbf{Inmutabilidad:} Blockchain asegura que los votos no puedan alterarse ni eliminarse. Las reglas del sistema, como número máximo de candidatos, están codificadas en los smart contracts.
+\end{itemize}
+
+La implementación adopta estándares de cifrado (SHA-256, ECDSA) y protocolos seguros (HTTPS), utilizando la blockchain para reforzar la integridad y la transparencia del sistema electoral.

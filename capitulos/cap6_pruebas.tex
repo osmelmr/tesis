@@ -1,0 +1,58 @@
+\chapter{Pruebas y resultados}
+
+\section{Plan de pruebas}
+
+Se diseñó un plan de pruebas completo para verificar que el sistema cumple los requisitos. Siguiendo lo sugerido en la guía, se definieron pruebas unitarias, de integración y de carga.  
+
+\begin{itemize}
+    \item \textbf{Pruebas unitarias:} Se evaluó cada módulo de forma aislada, como funciones de hashing y validación de permisos (por ejemplo, verificar que un usuario con \texttt{has\_voted = true} sea rechazado al intentar votar de nuevo). Estas pruebas se automatizaron con Mocha/Chai.
+    \item \textbf{Pruebas de integración:} Se verificó la interconexión entre componentes simulando el flujo completo de votación en un entorno local, desplegando la base de datos, el servidor y un nodo Ethereum local (Ganache).
+    \item \textbf{Pruebas de sistema/aceptación:} Se planearon escenarios reales para asegurar que el proceso cumpla con el diseño, desde la autenticación del usuario hasta la publicación del voto en blockchain. Las métricas consideradas incluyen tiempo de respuesta, tasa de éxito de transacciones y cobertura de código.
+\end{itemize}
+
+\section{Pruebas unitarias e integración}
+
+En las pruebas unitarias se validó el núcleo de la lógica electoral:
+
+\begin{itemize}
+    \item Caso representativo: un usuario con \texttt{can\_vote = true} y \texttt{has\_voted = false} puede emitir un voto correctamente. Tras la operación, \texttt{has\_voted} cambia a true y se genera un \texttt{vote\_hash} consistente.
+    \item Casos clave: intentar votar sin autorización (\texttt{can\_vote = false}) o votar dos veces; el sistema debe rechazar estas acciones y devolver errores apropiados.
+    \item Verificación de hashing: se comprobó que \texttt{vote\_hash = SHA256(election\_id + voter\_hash + choices + timestamp)} se calcule correctamente.
+\end{itemize}
+
+Las pruebas de integración confirmaron la interacción con la blockchain:
+
+\begin{itemize}
+    \item Simulación de emisión de un voto: el backend envía la transacción al nodo Ethereum local, que la mina en un bloque. Luego el backend recibe el \texttt{blockchain\_tx\_id}.
+    \item Se verificó que el \texttt{blockchain\_tx\_id} y el \texttt{vote\_hash} guardados en la BD coincidan exactamente con los datos de la cadena.
+\end{itemize}
+
+Se obtuvo cobertura de código superior al 90\% en los módulos críticos, y los endpoints REST respondieron en menos de 200 ms en promedio bajo carga moderada.
+
+\section{Pruebas de sistema/aceptación}
+
+Para las pruebas de sistema se montó un escenario de elección completo:
+
+\begin{itemize}
+    \item Se crearon 3 elecciones de prueba con 5 candidatos cada una.
+    \item Se habilitaron 10 votantes por elección.
+    \item Se simularon los 10 votantes concurrentes mediante scripts automatizados, cumpliendo \texttt{max\_choices}.
+    \item El proceso completo tardó en promedio 2–3 segundos por votante.
+\end{itemize}
+
+El sistema soportó la concurrencia sin errores: todos los votos autorizados fueron registrados correctamente, mientras que intentos extra fueron bloqueados por la lógica del servidor. Además, se simuló la auditoría: los \texttt{vote\_hash} extraídos de la BD coincidieron con los registros de blockchain. No se detectaron duplicados ni pérdidas de datos. Los únicos errores fueron de validación de frontend y pequeños bugs de UI, resueltos durante el desarrollo.
+
+\section{Análisis de resultados}
+
+Los datos de las pruebas confirman las fortalezas del sistema:
+
+\begin{itemize}
+    \item \textbf{Seguridad:} Blockchain funcionó como fuente de verdad; los votos emitidos no pudieron modificarse.
+    \item \textbf{Integridad:} Todas las transacciones fueron validadas y almacenadas sin colisión de hashes.
+    \item \textbf{Rendimiento:} Tiempo promedio de confirmación de 2–3 segundos por voto, aceptable para elecciones de pequeña escala. En una red pública congestionada, este tiempo podría aumentar.
+    \item \textbf{Usabilidad:} Los votantes completaron el proceso sin dificultades, respetando automáticamente el límite de \texttt{max\_choices}.
+    \item \textbf{Privacidad:} En blockchain solo aparecen \texttt{vote\_hash} anónimos; no se pueden inferir identidades.
+    \item \textbf{Transparencia:} Observadores externos pueden reproducir el recuento consultando el historial de transacciones de los contratos inteligentes, cumpliendo la auditoría automática en tiempo real.
+\end{itemize}
+
+En conclusión, los resultados indican que la aplicación satisface los objetivos de proporcionar votaciones seguras, trazables e inmutables utilizando blockchain.

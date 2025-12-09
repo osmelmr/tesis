@@ -1,0 +1,48 @@
+# Archivos de salida de LaTeX
+*.aux
+*.bbl
+*.blg
+*.brf
+*.idx
+*.ind
+*.ilg
+*.lof
+*.log
+*.lot
+*.out
+*.toc
+*.nlo
+*.nls
+*.nlg
+*.snm
+*.nav
+*.vrb
+*.dvi
+*.ps
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.dep
+*.bak
+*.gz
+
+# Archivos temporales comunes de editores
+# (VS Code no suele generar muchos específicos de LaTeX fuera del .vscode/settings.json)
+# Sin embargo, es buena práctica ignorar archivos temporales comunes
+*~
+.#*
+\#*
+
+# Directorio de configuración de VS Code (opcional, si contiene configuraciones personales)
+.vscode/
+
+# Archivos PDF generados (Mantén esto si quieres generar el PDF localmente y no subirlo)
+# Si deseas subir el PDF final generado, comenta o elimina la siguiente línea.
+*.pdf
+
+# Archivos de Biber/BibTeX
+*.bcf
+*.run.xml
+
+# Carpeta de salida de latexmk
+_minted-*.py

@@ -1,0 +1,67 @@
+\chapter{Introducción}
+
+\section{Planteamiento del problema}
+
+Los sistemas electorales tradicionales enfrentan desafíos de confianza y seguridad. Estudios indican que innovaciones previas de votación electrónica han sido vulnerables; por ejemplo, dispositivos electrónicos DRE han mostrado fallos difíciles de detectar. Además, la falta de un registro público de cada voto impide auditorías efectivas, y se han registrado irregularidades en diversos países (como Venezuela y Bielorrusia) que minan la legitimidad electoral.
+
+La votación electrónica puede mitigar problemas logísticos y de accesibilidad, tales como permitir votar desde el extranjero o facilitar la participación de personas con movilidad reducida. Sin embargo, también introduce nuevos retos de seguridad, entre ellos ciberataques o dificultades para verificar la identidad y unicidad de cada voto. En este contexto surge la necesidad de un sistema de votación digital que garantice seguridad, integridad y transparencia del sufragio, a la vez que preserve la privacidad del elector.
+
+La tecnología blockchain se plantea como una solución prometedora, ya que permite registrar cada voto en un libro mayor distribuido e inmutable, asegurando que no pueda ser alterado una vez publicado. El problema que aborda esta tesis es diseñar e implementar una aplicación web de votación electrónica que aproveche estas propiedades de blockchain para resolver las deficiencias de los sistemas actuales.
+
+\section{Justificación y motivación}
+
+Implementar votación sobre blockchain mejora la confianza pública y reduce el riesgo de fraude. La blockchain aporta características de inmutabilidad, integridad y auditabilidad, fundamentales para un sistema electoral seguro. En una cadena de bloques descentralizada, cada voto queda registrado de manera segura, transparente y sin posibilidad de alteración, garantizando la trazabilidad del proceso.
+
+El consenso criptográfico elimina intermediarios de confianza, reduciendo la posibilidad de manipulación de datos. Organizaciones como IBM señalan que blockchain ofrece seguridad, transparencia y confianza sin depender de terceros tradicionales. Esta tesis se justifica en que un sistema de votación blockchain puede aprovechar dichas propiedades para construir un proceso electoral más confiable e íntegro.
+
+Los beneficiarios incluyen a los ciudadanos (que pueden votar con garantías) y a las autoridades electorales (que disponen de un registro infalsificable). La motivación central es desarrollar una aplicación funcional que implemente esta solución, guiada por la lógica de negocio y por estudios previos sobre el potencial de blockchain en la integridad del voto.
+
+\section{Objetivos}
+
+\subsection*{Objetivo general}
+Desarrollar una aplicación web de votación digital basada en blockchain que permita realizar elecciones seguras, auditables y confiables.
+
+\subsection*{Objetivos específicos}
+\begin{itemize}
+    \item Definir los requisitos funcionales y no funcionales a partir de la lógica de negocio.
+    \item Diseñar la arquitectura del sistema (frontend, backend, base de datos y nodo blockchain).
+    \item Implementar los componentes tecnológicos: servidor de aplicación, contratos inteligentes e interfaz de usuario, garantizando mecanismos de seguridad (autenticación, cifrado, firma digital).
+    \item Desplegar y probar la aplicación en un entorno controlado, validando que solo los electores autorizados puedan votar una única vez y que cada voto quede registrado de forma inmutable.
+    \item Documentar el proceso y evaluar los resultados para verificar el cumplimiento de los objetivos de integridad y trazabilidad.
+\end{itemize}
+
+\section{Alcance y delimitaciones}
+
+El proyecto abarca el diseño e implementación de un sistema completo de votación digital enfocado a elecciones de escala local o institucional. Incluye la gestión de usuarios, elecciones, candidatos y votantes autorizados, así como la emisión y conteo de votos.
+
+Se asume el uso de una red blockchain existente (pública o privada) como registro inmutable. No se abordan dispositivos de votación físicos ni la emisión de credenciales oficiales de identidad. Tampoco se implementan protocolos criptográficos avanzados más allá de funciones hash estándar, ni se tratan aspectos legales.
+
+El alcance se limita al software: backend, interfaz web y contratos inteligentes necesarios para simular una elección real. Los datos de entrada se modelan según la lógica de negocio proporcionada, sin integrar sistemas externos reales de validación, salvo el campo informativo \texttt{verified\_by\_external\_system}. En resumen, se desarrollará un prototipo funcional centrado en la seguridad, trazabilidad e integridad del voto.
+
+\section{Metodología}
+
+Se empleará una metodología ágil e iterativa para el desarrollo del sistema. La recolección de requisitos se basará en el análisis de la lógica de negocio y de literatura existente. Las fases principales incluyen:
+
+\begin{itemize}
+    \item \textbf{Análisis de requisitos}
+    \item \textbf{Diseño del modelo de datos y arquitectura}
+    \item \textbf{Implementación del código y smart contracts}
+    \item \textbf{Pruebas de validación}
+\end{itemize}
+
+Se utilizarán herramientas estándar: control de versiones (Git), frameworks modernos para frontend y backend, entornos de desarrollo blockchain (Ethereum local o testnet) y plataformas ágiles. Cada iteración incluirá validación parcial de funcionalidades y ajustes necesarios.
+
+\section{Estructura de la tesis}
+
+Esta tesis se organiza en siete capítulos:
+
+\begin{itemize}
+    \item El Capítulo 2 presenta el marco teórico y estado del arte.
+    \item El Capítulo 3 analiza el problema y especifica los requisitos del sistema.
+    \item El Capítulo 4 describe el diseño: arquitectura, base de datos, smart contracts, interfaz y diagramas UML.
+    \item El Capítulo 5 documenta la implementación técnica del sistema.
+    \item El Capítulo 6 cubre las pruebas y los resultados obtenidos.
+    \item El Capítulo 7 presenta las conclusiones, limitaciones y recomendaciones futuras.
+\end{itemize}
+
+Al final se incluye la bibliografía en estilo APA.
