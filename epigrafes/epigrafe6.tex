@@ -1,0 +1,61 @@
+\Epigrafe{Ingeniería de Requisitos: Necesidades, Objetivos y Funcionalidades Clave del Sistema}{
+Este epígrafe presenta los artefactos resultantes del proceso de Ingeniería de Requisitos realizado para el desarrollo del sistema de votación digital basado en blockchain. Se desglosan las necesidades y objetivos que la aplicación debe satisfacer, así como las funcionalidades clave expresadas mediante historias de usuario que guiaron el diseño e implementación del prototipo.
+
+\subsection*{Identificación de Necesidades y Objetivos}
+A partir del diagnóstico del estado actual de los sistemas de votación digital, se identificaron las siguientes necesidades críticas que la aplicación debe cubrir:
+\begin{itemize}
+    \item \textbf{Necesidad de integridad electoral:} garantizar que cada voto sea único, inmutable y contabilizado con exactitud, eliminando la posibilidad de alteración o duplicación fraudulenta.
+    \item \textbf{Necesidad de privacidad y anonimato:} proteger la identidad del votante durante todo el proceso, sin comprometer la capacidad de verificación del voto emitido.
+    \item \textbf{Necesidad de transparencia y auditabilidad:} proporcionar mecanismos públicos y accesibles para que cualquier persona pueda auditar el proceso y validar los resultados.
+    \item \textbf{Necesidad de accesibilidad y usabilidad:} ofrecer una interfaz clara, intuitiva y accesible que permita a votantes con distintos niveles de habilidad técnica participar sin dificultades.
+    \item \textbf{Necesidad de seguridad robusta:} implementar controles de autenticación, autorización, cifrado y protección contra ataques cibernéticos comunes.
+    \item \textbf{Necesidad de escalabilidad y mantenibilidad:} diseñar una arquitectura modular que permita evolucionar el sistema, integrarse con redes blockchain reales y adaptarse a diferentes contextos electorales.
+\end{itemize}
+
+Los objetivos funcionales derivados de estas necesidades son:
+\begin{enumerate}
+    \item Gestionar de forma segura el registro y autenticación de usuarios (administradores, votantes, candidatos).
+    \item Permitir la creación, configuración y administración de procesos electorales completos.
+    \item Habilitar la emisión de votos únicos y anónimos, con validación en tiempo real.
+    \item Registrar cada voto de forma inmutable en una capa blockchain y generar un comprobante verificable.
+    \item Facilitar la consulta pública de resultados y la auditoría independiente del proceso.
+    \item Garantizar la disponibilidad, rendimiento y resistencia del sistema durante el periodo electoral.
+\end{enumerate}
+
+\subsection*{Historias de Usuario (Funcionalidades Clave)}
+Las siguientes historias de usuario describen las interacciones fundamentales que el sistema debe soportar, siguiendo el formato: \textit{“Como [Rol] quiero [acción] para [objetivo]”}.
+
+\begin{enumerate}
+    \item \textbf{Autenticación y registro}\\
+    Como \textbf{usuario del sistema} quiero \textbf{registrarme con mi correo electrónico y una contraseña segura} para \textbf{poder acceder a las funcionalidades que me corresponden según mi rol (votante, administrador o candidato)}.
+
+    \item \textbf{Gestión de elecciones (administrador)}\\
+    Como \textbf{administrador del sistema} quiero \textbf{crear una nueva elección definiendo título, descripción, fechas de inicio/cierre, tipo de boleta y número máximo de opciones} para \textbf{configurar el proceso electoral que los votantes usarán}.
+
+    \item \textbf{Registro de candidatos (administrador)}\\
+    Como \textbf{administrador del sistema} quiero \textbf{añadir candidatos a una elección específica, incluyendo su nombre, descripción y fotografía} para \textbf{que los votantes puedan conocer las opciones disponibles y emitir su voto de forma informada}.
+
+    \item \textbf{Habilitación de votantes (administrador)}\\
+    Como \textbf{administrador del sistema} quiero \textbf{asignar a los usuarios el derecho a votar en una elección determinada, marcándolos como “habilitados” en el padrón electoral} para \textbf{garantizar que solo las personas autorizadas participen en el proceso}.
+
+    \item \textbf{Emisión del voto (votante)}\\
+    Como \textbf{votante autorizado} quiero \textbf{seleccionar hasta el número máximo de candidatos permitidos en la elección y confirmar mi voto de manera segura} para \textbf{ejercer mi derecho al sufragio de forma única, anónima y verificable}.
+
+    \item \textbf{Generación de comprobante (votante)}\\
+    Como \textbf{votante} quiero \textbf{recibir un comprobante único (hash) de mi voto y un enlace para verificar su registro en la blockchain} para \textbf{tener certeza de que mi voto fue registrado correctamente y poder auditarlo posteriormente}.
+
+    \item \textbf{Consulta de resultados (público)}\\
+    Como \textbf{ciudadano o auditor} quiero \textbf{acceder a una página pública con los resultados agregados de la elección, desglosados por candidato} para \textbf{conocer el resultado del proceso de forma transparente y en tiempo real}.
+
+    \item \textbf{Auditoría de votos (auditor)}\\
+    Como \textbf{auditor independiente} quiero \textbf{poder consultar todos los hashes de votos registrados en la blockchain y contrastarlos con los resultados publicados} para \textbf{verificar la integridad y consistencia del proceso electoral}.
+
+    \item \textbf{Gestión de sesión (usuario)}\\
+    Como \textbf{usuario autenticado} quiero \textbf{poder cerrar mi sesión de forma segura desde cualquier dispositivo} para \textbf{proteger mi cuenta contra accesos no autorizados}.
+
+    \item \textbf{Recuperación de contraseña (usuario)}\\
+    Como \textbf{usuario registrado} quiero \textbf{solicitar el restablecimiento de mi contraseña mediante un enlace enviado a mi correo electrónico} para \textbf{poder recuperar el acceso a mi cuenta en caso de olvido}.
+\end{enumerate}
+
+Estas historias de usuario, priorizadas y validadas durante el proceso de ingeniería de requisitos, constituyeron la base para el diseño de la arquitectura, la definición de los casos de uso y la implementación de cada módulo funcional del sistema, asegurando que la solución desarrollada responda de manera efectiva a las necesidades y objetivos planteados.
+}

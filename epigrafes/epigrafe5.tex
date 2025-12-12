@@ -1,0 +1,22 @@
+\Epigrafe{Descripción de la Solución Propuesta al Problema Científico}{
+Este epígrafe presenta una descripción integral de la solución diseñada para resolver el problema científico central de esta investigación: la falta de un sistema de votación digital que garantice simultáneamente integridad inmutable, privacidad del votante, transparencia verificable y escalabilidad práctica, superando las limitaciones de los modelos electrónicos centralizados tradicionales.
+
+La solución propuesta consiste en una **aplicación web de votación digital híbrida, basada en una arquitectura de tres capas complementada con un registro inmutable tipo blockchain**. Esta solución aborda cada una de las variables críticas identificadas en el diagnóstico previo mediante un diseño modular y principios criptográficos bien definidos.
+
+En su núcleo, el sistema separa claramente tres responsabilidades fundamentales:
+\begin{enumerate}
+    \item \textbf{Gestión de identidad y autorización:} realizada a través de un backend seguro (Django REST Framework) que autentica a los usuarios mediante credenciales cifradas y tokens JWT temporales. Solo los votantes autorizados y verificados pueden acceder a las boletas electorales activas, garantizando la legitimidad del sufragio.
+    \item \textbf{Interfaz de usuario y experiencia de votación:} implementada con React y TypeScript, proporcionando una interfaz intuitiva, accesible y con validaciones en tiempo real. El votante selecciona sus candidatos dentro de los parámetros establecidos (máximo de opciones, periodo electoral vigente) y confirma su voto de manera consciente y segura.
+    \item \textbf{Registro inmutable y verificable del voto:} cada voto confirmado se transforma en un hash criptográfico único (SHA-256) que resume de forma irreversible la elección, el votante (anonimizado) y las opciones seleccionadas. Este hash se registra en una capa de blockchain —inicialmente simulada, luego migrable a una red real— que actúa como libro mayor público e inmutable. La identidad del votante nunca se expone en la cadena, preservando su privacidad.
+\end{enumerate}
+
+Para resolver la tensión entre **transparencia y privacidad**, la solución adopta un modelo de **anonimato criptográfico**: el sistema genera un identificador único (voter\_hash) a partir de los datos del votante, el cual se incluye en el cálculo del hash del voto pero no permite revertir la identificación. Así, cualquier auditor puede verificar que un votante autorizado emitió un voto válido sin conocer su identidad real. Este enfoque está respaldado por investigaciones previas sobre esquemas de votación con separación de identidad \citep{garcia2021}.
+
+Para garantizar la **integridad y unicidad del voto**, el backend implementa un mecanismo de bloqueo basado en el estado \texttt{has\_voted}. Una vez que un votante emite su sufragio, su estado se actualiza para impedir votos duplicados, mientras que el hash de su voto se publica en la blockchain, haciéndose inmutable y públicamente auditable. Esta combinación de control centralizado (eficiente) y registro distribuido (confiable) constituye una innovación práctica frente a sistemas puramente centralizados o completamente descentralizados.
+
+La solución también incorpora un **módulo de auditoría pública**, donde cualquier persona puede consultar los hashes registrados en la blockchain y verificar su consistencia con los resultados anunciados, fortaleciendo así la confianza en el proceso.
+
+Tecnológicamente, la solución está diseñada para ser **escalable y adaptable**: la capa de blockchain simulada permite pruebas exhaustivas sin costos operativos, mientras que la arquitectura está preparada para integrarse con redes reales (como Polygon) cuando se requiera mayor descentralización y resistencia. Esta flexibilidad asegura que el prototipo no solo sea una prueba de concepto académica, sino también un punto de partida para implementaciones institucionales reales.
+
+En síntesis, la solución presentada ofrece una respuesta tecnológicamente sólida, metodológicamente reproducible y conceptualmente alineada con los referentes teóricos más actualizados, materializando así el objetivo general de la investigación y demostrando una vía práctica hacia sistemas electorales digitales más confiables, transparentes y accesibles.
+}

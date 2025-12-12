@@ -1,0 +1,23 @@
+\Recommendations{
+A partir de los resultados obtenidos y las limitaciones identificadas durante el desarrollo de esta investigación, se proponen las siguientes recomendaciones para el perfeccionamiento, mantenimiento y evolución futura del sistema de votación digital basado en blockchain:
+
+\begin{enumerate}
+    \item \textbf{Integración con una red blockchain real:} Se recomienda migrar el módulo de blockchain simulado hacia una red distribuida real compatible con la máquina virtual de Ethereum (EVM), como Polygon testnet o una red permissionada como Hyperledger Fabric. Esto permitirá evaluar el desempeño del sistema en condiciones reales, incluyendo costos de transacción (gas fees), tiempos de confirmación y escalabilidad bajo cargas masivas.
+    
+    \item \textbf{Implementación de mecanismos avanzados de privacidad:} Para fortalecer la protección del anonimato del votante, se sugiere incorporar técnicas criptográficas como pruebas de conocimiento cero (Zero-Knowledge Proofs, ZKP) o esquemas de cifrado homomórfico. Estas técnicas permitirían realizar el conteo de votos sin revelar las selecciones individuales, mitigando posibles ataques de correlación o análisis estadístico.
+    
+    \item \textbf{Desarrollo de módulos de identidad digital autosoberana:} Se recomienda integrar un sistema de identidad descentralizada (Self-Sovereign Identity, SSI) basado en estándares como W3C Verifiable Credentials. Esto permitiría que los votantes demuestren su elegibilidad sin depender de un administrador central, aumentando la autonomía y reduciendo puntos únicos de fallo en la autorización.
+    
+    \item \textbf{Optimización de rendimiento y escalabilidad:} Se propone investigar e implementar técnicas de escalabilidad de capa 2 (Layer 2), como canales de estado (state channels) o sidechains, para reducir la latencia y el costo por transacción en escenarios de alta concurrencia electoral. Asimismo, se sugiere realizar pruebas de carga con miles de usuarios simultáneos para identificar y resolver cuellos de botella.
+    
+    \item \textbf{Fortalecimiento de la auditoría y transparencia:} Se recomienda desarrollar un módulo de auditoría automatizado que genere reportes en tiempo real, dashboards interactivos y alertas ante inconsistencias detectadas entre los registros locales y la blockchain. Este módulo podría incluir interfaces específicas para organismos de control electoral y observadores internacionales.
+    
+    \item \textbf{Adaptación a marcos normativos y estándares internacionales:} Se sugiere realizar un estudio detallado de las normativas electorales digitales en diferentes jurisdicciones (como el Reglamento eIDAS en la Unión Europea) y ajustar el sistema para cumplir con requisitos legales específicos, incluyendo accesibilidad universal, conservación de registros y resistencia a ataques avanzados.
+    
+    \item \textbf{Implementación de funcionalidades complementarias:} Para aumentar la utilidad del sistema en contextos reales, se propone desarrollar características adicionales como: votación por delegación (proxy voting), revocación de votos dentro de plazos establecidos, notificaciones push del estado del proceso, y análisis estadísticos de participación y tendencias.
+    
+    \item \textbf{Creación de una comunidad de desarrollo y documentación exhaustiva:} Se recomienda liberar el código fuente bajo una licencia de código abierto (por ejemplo, MIT o Apache 2.0) y fomentar una comunidad de desarrolladores que contribuyan al mantenimiento y evolución del proyecto. Paralelamente, se debe elaborar documentación técnica detallada, incluyendo manuales de instalación, configuración, API y buenas prácticas de seguridad.
+\end{enumerate}
+
+Estas recomendaciones están orientadas a transformar el prototipo académico desarrollado en una solución robusta, escalable y lista para su adopción en contextos institucionales reales, contribuyendo así al avance de la democracia digital y la transparencia electoral mediante tecnologías distribuidas.
+}

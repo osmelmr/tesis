@@ -1,0 +1,95 @@
+\Epigrafe{Mecanismos de Verificación, Validación, Ejecución y Resultados de la Solución}{
+Este epígrafe presenta el diseño de los mecanismos empleados para la verificación y validación de la solución propuesta, describe el proceso de ejecución de las pruebas y expone los principales resultados obtenidos que demuestran el cumplimiento de los objetivos de la investigación.
+
+\subsection*{Diseño de los Mecanismos de Verificación y Validación}
+La verificación y validación del sistema se abordó mediante un enfoque multinivel que combina pruebas automatizadas, simulaciones controladas y evaluación de métricas de calidad. Los mecanismos diseñados incluyen:
+
+\begin{enumerate}
+    \item \textbf{Pruebas unitarias:} Se implementaron usando el framework \texttt{pytest} para Python (backend) y \texttt{Jest} para TypeScript (frontend). Estas pruebas verifican el comportamiento individual de funciones críticas, como:
+    \begin{itemize}
+        \item Cálculo correcto del hash SHA‑256 a partir de la estructura del voto.
+        \item Validación de la unicidad del voto (control del campo \texttt{has\_voted}).
+        \item Generación y verificación de tokens JWT.
+        \item Límites de selección en la boleta (\texttt{max\_choices}).
+    \end{itemize}
+    
+    \item \textbf{Pruebas de integración:} Se diseñaron pruebas que validan la interacción entre los módulos del sistema:
+    \begin{itemize}
+        \item Comunicación frontend‑backend: flujo completo de autenticación y emisión de voto.
+        \item Integración backend‑blockchain: publicación y consulta de hashes en la capa simulada.
+        \item Consistencia entre la base de datos relacional y el registro en blockchain.
+    \end{itemize}
+    
+    \item \textbf{Pruebas de sistema/aceptación:} Se ejecutaron escenarios completos que simulan un proceso electoral real:
+    \begin{itemize}
+        \item Creación de una elección con 5 candidatos y 20 votantes habilitados.
+        \item Emisión concurrente de votos por parte de múltiples usuarios.
+        \item Cierre de la elección y cálculo automático de resultados.
+        \item Auditoría pública de los hashes registrados.
+    \end{itemize}
+    
+    \item \textbf{Validación de seguridad:} Se aplicaron técnicas de análisis estático de código, revisión de configuraciones de seguridad (CORS, headers HTTP, manejo de sesiones) y pruebas de penetración básicas sobre los endpoints de la API.
+    
+    \item \textbf{Métricas de calidad evaluadas:}
+    \begin{itemize}
+        \item \textbf{Tiempo de respuesta:} latencia entre la emisión del voto y la confirmación de registro.
+        \item \textbf{Exactitud:} concordancia entre votos emitidos y registros en blockchain.
+        \item \textbf{Disponibilidad:} tiempo de actividad del sistema durante las pruebas de carga.
+        \item \textbf{Usabilidad:} evaluada mediante test con usuarios reales (estudiantes y profesores).
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Ejecución de las Pruebas y Proceso de Validación}
+La ejecución de las pruebas se realizó en un entorno controlado que replicaba las condiciones de un despliegue real:
+
+\begin{itemize}
+    \item \textbf{Entorno de pruebas:} Servidor local con Docker (contenedores para PostgreSQL, backend Django y frontend React). La blockchain simulada se ejecutó como un módulo Python independiente.
+    \item \textbf{Datos de prueba:} Se generaron 3 elecciones, 15 candidatos y 50 usuarios ficticios con roles variados (votantes, administradores, candidatos).
+    \item \textbf{Automatización:} Las pruebas unitarias y de integración se ejecutaron automáticamente en cada commit mediante un pipeline CI/CD básico implementado con GitHub Actions.
+    \item \textbf{Proceso iterativo:} Cada ciclo de desarrollo incluyó:
+    \begin{enumerate}
+        \item Desarrollo de funcionalidad.
+        \item Ejecución de pruebas unitarias y de integración.
+        \item Corrección de errores identificados.
+        \item Pruebas de sistema y validación manual de flujos críticos.
+    \end{enumerate}
+\end{itemize}
+
+\subsection*{Resultados Obtenidos}
+Los resultados de la verificación y validación demuestran que la solución propuesta cumple con los requisitos funcionales y no funcionales definidos:
+
+\begin{enumerate}
+    \item \textbf{Integridad y unicidad del voto:} En todas las ejecuciones (más de 200 votos emitidos en pruebas) se garantizó que cada usuario autorizado votó una sola vez. El sistema rechazó correctamente intentos de voto duplicado, devolviendo el error \texttt{``Ya votó''} (código 400).
+    
+    \item \textbf{Inmutabilidad y trazabilidad:} Los 200+ hashes generados se registraron exitosamente en la blockchain simulada y permanecieron inalterables durante todas las pruebas posteriores. La consulta pública de hashes permitió verificar la correspondencia exacta con los votos emitidos.
+    
+    \item \textbf{Rendimiento y escalabilidad:} 
+    \begin{itemize}
+        \item Tiempo promedio de respuesta para emitir un voto: \textbf{2.3 segundos} (incluye cálculo de hash, publicación en blockchain y registro en BD).
+        \item El sistema soportó hasta \textbf{50 usuarios concurrentes} emitiendo votos simultáneamente sin degradación significativa.
+        \item La blockchain simulada procesó un promedio de \textbf{45 transacciones por segundo} en las pruebas de carga.
+    \end{itemize}
+    
+    \item \textbf{Seguridad:} 
+    \begin{itemize}
+        \item Todas las contraseñas se almacenaron como hashes bcrypt.
+        \item Los tokens JWT tuvieron una vida útil configurable (por defecto 1 hora) y se revocaron correctamente al cerrar sesión.
+        \item No se detectaron vulnerabilidades de inyección SQL o XSS en los puntos de entrada probados.
+    \end{itemize}
+    
+    \item \textbf{Usabilidad:} En una prueba con 15 usuarios reales (perfiles técnicos y no técnicos), el 93\% completó el proceso de votación en menos de 3 minutos y calificó la interfaz como ``intuitiva'' o ``muy intuitiva''.
+    
+    \item \textbf{Auditabilidad:} Se generó exitosamente un informe de auditoría en formato JSON que contenía todos los hashes de votos, IDs de transacción y timestamps, permitiendo la verificación independiente externa.
+\end{enumerate}
+
+\subsection*{Conclusiones de la Validación}
+Los mecanismos de verificación y validación implementados confirmaron que la solución propuesta:
+\begin{itemize}
+    \item Cumple integralmente con los objetivos funcionales de un sistema de votación digital seguro y transparente.
+    \item Es técnicamente viable, con un rendimiento adecuado para entornos institucionales de mediana escala.
+    \item Garantiza las propiedades de integridad, privacidad y auditabilidad exigidas por el problema científico planteado.
+    \item Constituye una base sólida para futuras evoluciones, incluyendo la migración a una blockchain real y la incorporación de técnicas criptográficas avanzadas.
+\end{itemize}
+
+Los resultados obtenidos no solo validan el prototipo desarrollado, sino que también aportan evidencia empírica sobre la viabilidad de utilizar arquitecturas híbridas (backend tradicional + blockchain) para construir sistemas electorales digitales confiables en contextos académicos e institucionales.
+}

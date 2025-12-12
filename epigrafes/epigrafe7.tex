@@ -1,0 +1,75 @@
+\Epigrafe{Diseño de Mecanismos de Datos, Procesamiento e Interfaz de Usuario}{
+Este epígrafe presenta el diseño detallado de los mecanismos empleados para el almacenamiento, procesamiento y transmisión de los datos en el sistema de votación digital, así como ejemplos concretos de implementación de estos mecanismos y de las interfaces gráficas de usuario que materializan la solución propuesta.
+
+\subsection*{Diseño de Mecanismos de Almacenamiento de Datos}
+El sistema implementa un modelo de almacenamiento híbrido que combina una base de datos relacional para la gestión operativa y un registro inmutable tipo blockchain para la preservación integral de los votos.
+
+\begin{itemize}
+    \item \textbf{Base de datos relacional (PostgreSQL):} Se diseñó un esquema normalizado con las siguientes tablas principales:
+    \begin{itemize}
+        \item \texttt{User}: almacena información básica de usuarios (id, email, nombre, hash de contraseña).
+        \item \texttt{Election}: contiene los parámetros de cada elección (id, título, fechas, estado, máximo de opciones).
+        \item \texttt{Candidate}: registra los candidatos asociados a una elección.
+        \item \texttt{VoterRegister}: establece la relación usuario‑elección con los campos \texttt{can\_vote} y \texttt{has\_voted}.
+        \item \texttt{VoteRecord}: guarda la referencia al voto emitido (hash del voto, ID de transacción en blockchain, timestamp).
+    \end{itemize}
+    Este diseño relacional garantiza la integridad referencial, la unicidad de los votos por usuario y la trazabilidad interna del proceso.
+
+    \item \textbf{Registro inmutable en blockchain:} Cada voto validado se convierte en una estructura de datos JSON que incluye: \texttt{election\_id} (identificador de la elección), \texttt{voter\_hash} (hash anónimo del votante), \texttt{choices} (lista de candidatos seleccionados) y \texttt{timestamp} (marca de tiempo ISO). A partir de esta estructura se calcula un hash criptográfico SHA‑256 que se publica en la blockchain simulada (o en una red real). Este hash actúa como comprobante inmutable y públicamente verificable del voto, sin revelar la identidad del votante ni el contenido de su selección.
+\end{itemize}
+
+\subsection*{Diseño de Mecanismos de Procesamiento y Transmisión de Datos}
+El flujo de procesamiento y transmisión de datos se estructura en tres capas claramente diferenciadas:
+
+\begin{enumerate}
+    \item \textbf{Capa de presentación (frontend):} Desarrollada con React y TypeScript, se comunica con el backend mediante peticiones HTTP/HTTPS usando la biblioteca Axios. Todas las solicitudes incluyen un token JWT en la cabecera de autorización, garantizando autenticación y control de acceso.
+
+    \item \textbf{Capa de lógica de negocio (backend):} Implementada con Django REST Framework, expone una API REST que recibe las solicitudes del frontend, valida los datos, aplica las reglas de negocio (e.g., verifica que el usuario esté autorizado y no haya votado) y genera la transacción hacia la capa de blockchain. Los datos sensibles (como contraseñas) se cifran con bcrypt antes de su almacenamiento.
+
+    \item \textbf{Capa de persistencia inmutable (blockchain):} Inicialmente simulada mediante un módulo Python que emula el comportamiento de una red distribuida. Este módulo recibe el hash del voto y lo registra en una estructura de datos interna que replica un blockchain sencillo, devolviendo un ID de transacción único. La arquitectura permite reemplazar esta simulación por una conexión real a una red EVM (como Polygon) mediante Web3.js.
+\end{enumerate}
+
+\subsection*{Ejemplos de Implementación}
+
+\begin{enumerate}
+    \item \textbf{Ejemplo de endpoint de emisión de voto (backend – Django):}
+    
+    La función \texttt{cast\_vote} en Django REST Framework realiza las siguientes operaciones:
+    \begin{enumerate}
+        \item Verifica que el usuario autenticado esté autorizado para votar en la elección específica.
+        \item Comprueba que el usuario no haya votado previamente (campo \texttt{has\_voted}).
+        \item Recoge las opciones seleccionadas del cuerpo de la solicitud.
+        \item Construye un objeto JSON con \texttt{election\_id}, \texttt{voter\_hash} (derivado del usuario), \texttt{choices} y \texttt{timestamp}.
+        \item Calcula el hash SHA‑256 de este objeto.
+        \item Publica el hash en el módulo de blockchain simulado, obteniendo un ID de transacción.
+        \item Almacena localmente el registro del voto en la base de datos y actualiza el estado \texttt{has\_voted} del votante.
+        \item Devuelve al frontend el hash del voto y el ID de transacción para su verificación.
+    \end{enumerate}
+    
+    \item \textbf{Ejemplo de componente de votación (frontend – React/TypeScript):}
+    
+    El componente \texttt{VotingBallot} implementa la lógica de interfaz:
+    \begin{enumerate}
+        \item Muestra el título de la elección y el número máximo de candidatos seleccionables.
+        \item Renderiza una lista de candidatos con checkboxes para su selección.
+        \item Controla que no se exceda el límite \texttt{max\_choices} deshabilitando checkboxes adicionales.
+        \item Incluye un botón de confirmación que se activa solo cuando hay al menos una opción seleccionada.
+        \item Al confirmar, envía mediante Axios una petición POST al endpoint \texttt{/api/elections/<id>/vote/} con las opciones seleccionadas y el token de autenticación.
+        \item Muestra una alerta con el hash del voto recibido del backend o un mensaje de error en caso de fallo.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Interfaces Gráficas de Usuario}
+La solución incluye un conjunto de interfaces diseñadas para ser intuitivas, accesibles y seguras:
+
+\begin{itemize}
+    \item \textbf{Pantalla de autenticación:} Formulario limpio con validación en tiempo real de credenciales.
+    \item \textbf{Dashboard del votante:} Muestra las elecciones activas, su estado y permite acceder a la boleta correspondiente.
+    \item \textbf{Boleta de votación:} Interfaz con candidatos presentados en tarjetas, checkboxes con límite de selección y botón de confirmación con doble verificación.
+    \item \textbf{Comprobante de voto:} Tras la emisión, se muestra el hash del voto y un código QR que enlaza al explorador de la blockchain para su verificación.
+    \item \textbf{Panel de administración:} Interfaz restringida que permite crear elecciones, gestionar candidatos y habilitar votantes mediante una tabla interactiva.
+    \item \textbf{Página de resultados públicos:} Gráficos de barras y tablas que presentan los resultados agregados en tiempo real, con opción de descargar el conjunto de hashes para auditoría.
+\end{itemize}
+
+Estos mecanismos de almacenamiento, procesamiento y transmisión, junto con las interfaces implementadas, constituyen la columna vertebral técnica que hace posible un sistema de votación digital seguro, transparente y fácil de usar.
+}
