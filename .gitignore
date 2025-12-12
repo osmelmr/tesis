@@ -25,6 +25,7 @@
 *.dep
 *.bak
 *.gz
+*.pptx
 
 # Archivos temporales comunes de editores
 # (VS Code no suele generar muchos específicos de LaTeX fuera del .vscode/settings.json)
