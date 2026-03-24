@@ -1,0 +1,95 @@
+flujo completo y detallado del sistema, desde el momento cero hasta la auditoría final, paso a paso y sin dejar cabos sueltos.
+
+Fase 1: Creación y Configuración (El Borrador)
+Todo esto ocurre en el mundo tradicional (Web + Base de Datos).
+
+Ingreso del Admin: El administrador inicia sesión en la plataforma web.
+
+Formulario de Elección: Crea una nueva elección definiendo:
+
+Título, descripción, fecha de inicio y fecha de fin.
+
+Añade los candidatos (nombre, biografía, foto).
+
+Define el padrón electoral (selecciona qué usuarios de la base de datos tienen derecho a participar).
+
+Guardado Local: El Backend (NestJS) guarda toda esta información en PostgreSQL. En este punto, la elección tiene un estado de DRAFT (Borrador) y el administrador todavía puede editar o eliminar cualquier dato.
+
+Fase 2: Publicación y Sellado (El Compromiso Inmutable)
+Aquí es donde la elección se vuelve oficial y se conecta con la blockchain.
+
+Acción de Publicar: El administrador presiona el botón "Publicar Elección".
+
+Generación del Sello de Integridad: El Backend toma los datos cruciales de la elección (título, fechas, IDs de candidatos, IDs de votantes) y los pasa por una función criptográfica (ej. SHA-256) para generar un único Hash de Integridad.
+
+Despliegue de Datos al Contrato Maestro: El Backend, utilizando una billetera administradora (cuyas llaves privadas están seguras en tus variables de entorno), envía una transacción al Smart Contract Maestro en Ethereum ejecutando la función createElection().
+
+Registro en Blockchain: El contrato recibe y guarda:
+
+Un nuevo ID para esta elección (ej. electionId = 5).
+
+La cantidad de candidatos permitidos.
+
+La fecha de cierre.
+
+El Hash de Integridad.
+
+Bloqueo en Backend: El contrato devuelve el electionId de la blockchain. El Backend lo guarda, cambia el estado de la elección en la DB a PUBLISHED (Publicada) y, a partir de este momento, bloquea cualquier intento de edición (UPDATE/DELETE) en su API.
+
+Fase 3: Acceso y Descubrimiento (El Votante)
+La experiencia de usuario comienza.
+
+Autenticación: El estudiante/votante ingresa a la web con su usuario y contraseña institucionales.
+
+Filtrado de Elecciones: El Frontend pide al Backend las elecciones disponibles. El Backend busca en la tabla voter todas las elecciones PUBLISHED donde este user_id esté incluido y donde su campo has_voted sea false.
+
+Visualización: El usuario ve en su pantalla solo las elecciones en las que tiene derecho a votar y entra a una de ellas para ver a los candidatos.
+
+Fase 4: Autorización y Firma (La Magia sin Gas)
+El paso maestro de seguridad donde el Backend autoriza a la billetera.
+
+Selección: El usuario selecciona a su candidato preferido en la interfaz.
+
+Conexión de Billetera: Al presionar "Votar", la web le pide al usuario que conecte su billetera (MetaMask). El Frontend captura la dirección pública de esa billetera (ej. 0xUser123).
+
+Petición de Autorización: El Frontend envía una petición oculta al Backend: "El usuario autenticado quiere votar por el Candidato #2 usando la billetera 0xUser123".
+
+Validación Estricta: El Backend revisa la base de datos por última vez:
+
+¿Este usuario pertenece a esta elección? (Sí).
+
+¿Su campo has_voted es false? (Sí).
+
+¿La elección está dentro de la fecha límite? (Sí).
+
+Generación del Cupón Digital: Al pasar las validaciones, el Backend crea un mensaje empaquetado: [electionId, candidateId, walletAddress]. Luego, firma este paquete usando la Clave Privada del Administrador.
+
+Entrega: El Backend le devuelve al Frontend este "Cupón Firmado" (un string criptográfico largo). Hasta aquí, nadie ha gastado gas en la blockchain.
+
+Fase 5: Ejecución en la Blockchain (El Voto Inmutable)
+El usuario interactúa directamente con Ethereum.
+
+Firma del Usuario: El Frontend toma el Cupón Firmado y el ID del candidato, y le pide a MetaMask que ejecute la transacción hacia el Smart Contract.
+
+Pago de Gas: El usuario aprueba la transacción en MetaMask (pagando él mismo la pequeña comisión de red).
+
+Validación del Contrato Inteligente: La transacción llega a Ethereum. El Smart Contract ejecuta la función vote(electionId, candidateId, cuponFirmado). El contrato realiza tres chequeos matemáticos:
+
+Chequeo de Tiempo: ¿La elección sigue activa?
+
+Chequeo de Origen (ecrecover): ¿Este cupón fue realmente firmado por el Backend oficial? Si alguien alteró el cupón o intentó inventarlo, la firma no coincidirá y el contrato abortará la operación.
+
+Chequeo de Duplicidad: ¿La billetera 0xUser123 ya tiene un voto registrado en esta electionId?
+
+Registro Definitivo: Si todo es correcto, el contrato suma +1 al contador del candidato en la blockchain y marca a la billetera 0xUser123 como ha_votado = true. La transacción se sella en un bloque.
+
+Fase 6: Sincronización y Auditoría (El Recibo Final)
+Cerrando el ciclo para mantener la base de datos actualizada.
+
+El Recibo: La blockchain le devuelve a MetaMask un Hash de Transacción (tx_hash), que es el comprobante público de que la operación fue exitosa.
+
+Actualización Local: El Frontend envía este tx_hash a tu Backend.
+
+Bloqueo de Usuario: Tu Backend actualiza la tabla voter: marca has_voted = true para ese usuario y guarda el tx_hash. A partir de este momento, aunque el usuario conecte otra billetera distinta, el Backend ya no le generará un nuevo Cupón Firmado.
+
+Conteo Final: Cuando la fecha de cierre llega, el Frontend simplemente consulta las variables públicas del Smart Contract para mostrar los resultados en tiempo real y con precisión matemática.
