@@ -1,0 +1,32 @@
+================================================================================
+PILAR 2: AUTORIZACIÓN DE ORIGEN (DIGITAL SIGNATURE / ECDSA)
+================================================================================
+
+1. DEFINICIÓN
+--------------------------------------------------------------------------------
+Mecanismo basado en criptografía asimétrica (Curva Elíptica) utilizado para 
+validar que las instrucciones y permisos recibidos por el Smart Contract 
+provienen exclusivamente de la autoridad competente (Backend Institucional).
+
+2. FUNCIONAMIENTO TÉCNICO
+--------------------------------------------------------------------------------
+El servidor posee una Clave Privada (Private Key) resguardada en un entorno 
+seguro. Por cada voto que el sistema autoriza tras verificar la identidad 
+del alumno, el Backend genera una firma digital criptográfica sobre un 
+paquete de datos denominado "Ticket".
+
+3. VERIFICACIÓN ON-CHAIN (SMART CONTRACT)
+--------------------------------------------------------------------------------
+El Smart Contract recibe el ticket y la firma. Utiliza la función nativa de 
+Solidity 'ecrecover' para recuperar la dirección pública asociada a esa firma. 
+Si la dirección recuperada no coincide con la dirección pública del 
+Administrador (previamente registrada en el contrato), la transacción se 
+considera fraudulenta y es anulada automáticamente.
+
+4. PROPÓSITO Y DEFENSA
+--------------------------------------------------------------------------------
+Evita ataques de inyección de tráfico externo. Impide que usuarios con 
+conocimientos técnicos avanzados intenten enviar votos directamente al contrato 
+sin haber pasado por los filtros de autenticación y lógica de negocio del 
+sistema universitario.
+================================================================================

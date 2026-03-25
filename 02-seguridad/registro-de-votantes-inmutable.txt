@@ -1,0 +1,65 @@
+================================================================================
+ANÁLISIS DE SEGURIDAD: PROTOCOLO DE PERTENENCIA MEDIANTE ÁRBOLES DE MERKLE
+================================================================================
+
+1. CONCEPTO FUNDAMENTAL: PRUEBA DE INCLUSIÓN CRIPTOGRÁFICA
+--------------------------------------------------------------------------------
+Definición: Es el mecanismo matemático que permite demostrar que un dato 
+específico (el votante) pertenece a un conjunto predefinido (el censo electoral) 
+sin necesidad de revelar la totalidad de los elementos del conjunto ni 
+almacenarlos de forma explícita en la cadena de bloques.
+
+2. OBJETIVOS DEL PROTOCOLO
+--------------------------------------------------------------------------------
+* Integridad del Censo: Garantiza que la lista de votantes no ha sido alterada 
+  desde el momento de la creación de la elección.
+* No-Repudiación: Impide que un usuario autorizado niegue su participación o 
+  que el sistema ignore un voto legítimo.
+* Unicidad Contextual: Asegura que cada identidad participe estrictamente una 
+  sola vez por evento electoral.
+* Eliminación de la Confianza Centralizada: El sistema deja de depender de la 
+  honestidad del administrador para basar su validez en la verificación matemática.
+
+3. FASES DEL PROCESO TÉCNICO
+--------------------------------------------------------------------------------
+
+FASE A: SELLADO DEL CENSO (ANCLAJE DE CONFIANZA)
+- Construcción del Árbol: El Backend (NestJS) procesa la lista de identificadores 
+  únicos (user_id). Cada ID se convierte en un hash criptográfico (Hojas).
+- Generación de la Raíz: Mediante un proceso de hash binario en cascada, se 
+  obtiene la "Merkle Root" (una huella digital única de 32 bytes).
+- Publicación Inmutable: La Merkle Root se registra en el Smart Contract. El 
+  censo queda "blindado" ante cualquier modificación posterior en la base de datos.
+
+FASE B: AUTORIZACIÓN Y EMISIÓN DE LA PRUEBA (MERKLE PROOF)
+- Cálculo de la Prueba: Cuando un usuario solicita votar, el Backend genera una 
+  "Merkle Proof", que consiste en los hashes de los nodos hermanos necesarios 
+  para reconstruir el camino lógico hasta la raíz.
+- Emisión del Ticket: El usuario recibe un paquete firmado (Ticket) que vincula 
+  su 'user_hash', la 'Merkle Proof' y el 'election_id' correspondiente.
+
+FASE C: VALIDACIÓN ATÓMICA EN SMART CONTRACT (EL TRIPLE CANDADO)
+Al recibir la transacción, el contrato ejecuta tres verificaciones en un solo 
+paso computacional:
+
+1. Verificación de Pertenencia (Merkle): El contrato reconstruye la raíz usando 
+   el hash del votante y la prueba entregada. Si el resultado no coincide con 
+   la raíz anclada en la Fase A, el voto es rechazado.
+2. Verificación de Unicidad (Mapping): El contrato consulta su estado interno: 
+   'mapping(election_id => mapping(user_hash => bool))'. Si el usuario ya 
+   ejerció su derecho en ese evento, la transacción se revierte.
+3. Vínculo de Identidad: El sistema garantiza que el mismo 'user_hash' 
+   validado por el Merkle Tree sea el que se marca en el registro de unicidad, 
+   impidiendo el uso de identidades de terceros.
+
+4. CONCLUSIÓN Y VALOR ESTRUCTURAL
+--------------------------------------------------------------------------------
+Este protocolo garantiza la INMUTABILIDAD DEL PADRÓN. A diferencia de una base 
+de datos convencional (donde un administrador podría insertar o borrar registros 
+en el transcurso de la elección), en esta arquitectura cualquier intento de 
+alteración del censo original invalida la prueba matemática ante el Smart 
+Contract, resultando en el rechazo automático de la transacción. 
+
+El sistema evoluciona de un modelo de "Confianza en el Servidor" a un modelo de 
+"Verificación por Consenso Matemático".
+================================================================================

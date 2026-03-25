@@ -1,0 +1,37 @@
+================================================================================
+PILAR 3: PREVENCIÓN DE DOBLE GASTO (MAPPING DE UNICIDAD CONTEXTUAL)
+================================================================================
+
+1. DEFINICIÓN
+--------------------------------------------------------------------------------
+Implementación de estructuras de datos persistentes y altamente eficientes en 
+la EVM (Ethereum Virtual Machine) para controlar y restringir la frecuencia 
+de participación de los actores del sistema.
+
+2. EL DOBLE CANDADO DE UNICIDAD
+--------------------------------------------------------------------------------
+El sistema aplica una validación cruzada para evitar el fraude:
+A. Unicidad de Wallet: Registra la dirección física (Dirección Ethereum) 
+   desde la cual se emite el voto.
+B. Unicidad de Identidad: Registra el hash del identificador del usuario 
+   (procedente del padrón electoral).
+
+3. ÁMBITO CONTEXTUAL (MULTI-ELECCIÓN)
+--------------------------------------------------------------------------------
+A diferencia de los bloqueos globales, el sistema emplea mappings 
+bidimensionales: 
+'mapping(ID_Eleccion => mapping(Identificador => bool))'.
+
+Este diseño es fundamental para la usabilidad académica, ya que permite que 
+un mismo estudiante participe en múltiples procesos electorales distintos 
+(ej. Elecciones de Facultad, de Residencia o de la FEU) usando su misma 
+identidad y billetera, pero bloqueando estrictamente la duplicidad de su voto 
+dentro de un mismo evento.
+
+4. PROPÓSITO Y DEFENSA
+--------------------------------------------------------------------------------
+Elimina la posibilidad del "Ataque de Replay" o voto doble. Una vez que el 
+Smart Contract marca como 'true' el registro de un usuario para una elección 
+específica, cualquier transacción posterior con esos mismos datos será 
+rechazada por la lógica del consenso.
+================================================================================

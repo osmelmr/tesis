@@ -1,0 +1,35 @@
+================================================================================
+PILAR 1: SELLADO DE INTEGRIDAD DE LA ELECCIÓN (ELECTION HASHING)
+================================================================================
+
+1. DEFINICIÓN
+--------------------------------------------------------------------------------
+Proceso de generación de una huella digital única (Hash) que vincula todos los 
+parámetros configurados de una elección en un solo identificador inmutable 
+dentro de la cadena de bloques.
+
+2. FUNCIONAMIENTO TÉCNICO
+--------------------------------------------------------------------------------
+Al momento de publicar la elección, el Backend (NestJS) concatena los datos 
+estratégicos del proceso: 
+[Título + Fecha de Cierre + IDs de Candidatos + Merkle Root]. 
+
+A este paquete de datos se le aplica el algoritmo de hashing SHA-256. El 
+resultado es un string alfanumérico único que se almacena permanentemente en 
+el Smart Contract al invocar la función de creación.
+
+3. PROPÓSITO Y DEFENSA
+--------------------------------------------------------------------------------
+Este mecanismo actúa como un "precinto electrónico". Si un atacante lograra 
+comprometer la base de datos centralizada (PostgreSQL) para alterar un 
+candidato, modificar una fecha o cambiar el padrón, el Hash de Integridad 
+calculado en tiempo de ejecución chocaría contra el Hash almacenado en la 
+Blockchain. El Smart Contract detectaría la discrepancia y revertiría 
+cualquier intento de votación.
+
+4. VALOR PARA LA TESIS
+--------------------------------------------------------------------------------
+Garantiza que las "reglas del juego" y la estructura de la elección son 
+inalterables y auditables por cualquier tercero desde el inicio hasta el 
+cierre del proceso.
+================================================================================

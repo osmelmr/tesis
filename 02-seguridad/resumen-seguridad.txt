@@ -1,0 +1,59 @@
+================================================================================
+RESUMEN EJECUTIVO: ARQUITECTURA DE SEGURIDAD CRIPTOGRÁFICA (VOTACIÓN WEB3)
+================================================================================
+
+Este documento resume los cuatro métodos fundamentales que garantizan la 
+integridad, autenticidad y transparencia del sistema de votación descentralizado.
+
+1. MATRIZ DE MÉTODOS Y PROPÓSITOS
+--------------------------------------------------------------------------------
+MÉTODO                      | PROPÓSITO TÉCNICO
+----------------------------|---------------------------------------------------
+1. Merkle Tree Proof        | Garantiza que el votante pertenece al censo oficial
+                            | sin exponer la lista completa en la Blockchain.
+                            |
+2. Election Hashing         | Sella la configuración de la elección (candidatos,
+                            | fechas, reglas) para que sean inalterables.
+                            |
+3. Digital Signature (ECDSA)| Valida que el ticket de voto fue emitido por el
+                            | Backend institucional y no por un tercero.
+                            |
+4. Unicity Mapping          | Impide el doble gasto (voto duplicado) vinculando
+                            | Wallet e Identidad de forma atómica por evento.
+
+2. FLUJO DE VALIDACIÓN EN SMART CONTRACT
+--------------------------------------------------------------------------------
+Para que un voto sea aceptado, debe superar el "Cuádruple Candado" en una sola
+transacción atómica:
+
+PASO 1: ¿La firma del ticket corresponde a la llave privada del Backend?
+PASO 2: ¿Los datos del ticket coinciden con el Hash de la elección guardado?
+PASO 3: ¿El hash del usuario se incluye matemáticamente en la Merkle Root?
+PASO 4: ¿El Hash del usuario o la Wallet ya aparecen como 'true' en el mapping?
+
+3. RESUMEN DE PROTECCIÓN CONTRA ATAQUES (MATRIZ DE AMENAZAS)
+--------------------------------------------------------------------------------
+TIPO DE ATAQUE             | DEFENSA ACTIVA            | RESULTADO
+---------------------------|---------------------------|------------------------
+Inyección de Candidatos    | Election Hashing          | Transacción Revertida
+(Alterar opciones de voto) |                           | (Hash Mismatch)
+---------------------------|---------------------------|------------------------
+Suplantación de Identidad  | Merkle Tree Proof         | Transacción Revertida
+(Votante no autorizado)    |                           | (Invalid Proof)
+---------------------------|---------------------------|------------------------
+Intercepción de Tráfico    | Digital Signature (ECDSA) | Transacción Revertida
+(Ticket falso o editado)   |                           | (Invalid Signature)
+---------------------------|---------------------------|------------------------
+Fraude por Duplicidad      | Unicity Mapping           | Transacción Revertida
+(Votar dos o más veces)    |                           | (Already Voted)
+---------------------------|---------------------------|------------------------
+Ataque de Diccionario      | User Hashing              | Privacidad Protegida
+(Revelar nombres reales)   |                           | (Data Obfuscation)
+
+4. CONCLUSIÓN DE SEGURIDAD
+--------------------------------------------------------------------------------
+La arquitectura propuesta elimina el "Punto Único de Falla". La seguridad no 
+reside en la honestidad de los administradores del sistema, sino en la 
+imposibilidad matemática de generar pruebas falsas que concuerden con los 
+anclajes criptográficos (Hashes y Roots) depositados en la red Ethereum.
+================================================================================

@@ -1,95 +1,91 @@
-flujo completo y detallado del sistema, desde el momento cero hasta la auditoría final, paso a paso y sin dejar cabos sueltos.
+================================================================================
+PROTOCOLO DE VOTACIÓN HÍBRIDO CON UNICIDAD CONTEXTUAL (WEB2 + WEB3)
+================================================================================
 
-Fase 1: Creación y Configuración (El Borrador)
-Todo esto ocurre en el mundo tradicional (Web + Base de Datos).
+DESCRIPCIÓN GENERAL:
+Este protocolo define la interacción entre un sistema de gestión de identidades 
+(Backend NestJS) y un registro inmutable (Smart Contract Ethereum). Garantiza 
+que la identidad humana y la clave criptográfica sean únicas (1:1:1) dentro de 
+un mismo evento, permitiendo su reutilización en diferentes procesos electorales.
 
-Ingreso del Admin: El administrador inicia sesión en la plataforma web.
+--------------------------------------------------------------------------------
+FASE 1: CONFIGURACIÓN DE LA ELECCIÓN (EL GÉNESIS)
+Responsable: Administrador / Backend (NestJS)
+--------------------------------------------------------------------------------
+1.1 Definición de Metadatos: El administrador crea la elección en la plataforma. 
+    Se definen: título, descripción, fecha de inicio y fecha de cierre (Unix Timestamp).
+1.2 Registro de Candidatos: Se asignan identificadores únicos (candidate_id) 
+    a cada opción de voto.
+1.3 Persistencia Inicial: Los datos se almacenan en PostgreSQL con estado 'DRAFT'. 
+    En esta etapa, la elección no tiene presencia en la Blockchain.
 
-Formulario de Elección: Crea una nueva elección definiendo:
+--------------------------------------------------------------------------------
+FASE 2: DEFINICIÓN DEL CENSO Y SELLADO DE INTEGRIDAD (EL SELLO)
+Responsable: Backend (NestJS)
+--------------------------------------------------------------------------------
+2.1 Carga del Padrón Electoral: El administrador carga la lista de usuarios 
+    autorizados (IDs de estudiantes o correos institucionales).
+2.2 Cálculo del Hash de Integridad (Hi): El sistema genera una huella digital 
+    única (SHA-256) concatenando: 
+    [ID_temporal + Candidatos + Fechas + Lista_Votantes_Autorizados].
+2.3 Inmutabilidad del Padrón: Una vez generado el Hi, cualquier alteración en 
+    la lista de votantes o candidatos invalidará el hash, blindando la elección.
 
-Título, descripción, fecha de inicio y fecha de fin.
+--------------------------------------------------------------------------------
+FASE 3: ANCLAJE EN LA RED (REGISTRO INMUTABLE)
+Responsable: Smart Contract / Blockchain
+--------------------------------------------------------------------------------
+3.1 Transacción de Apertura: El Backend invoca la función 'crearEleccion()' 
+    en el Smart Contract Maestro.
+3.2 Registro On-Chain: La Blockchain almacena:
+    - election_id (Generado por el contrato).
+    - Hi (Hash de Integridad oficial).
+    - fecha_cierre (Timestamp de finalización).
+3.3 Sincronización: NestJS recibe el election_id oficial y actualiza el 
+    estado local a 'PUBLISHED'.
 
-Añade los candidatos (nombre, biografía, foto).
+--------------------------------------------------------------------------------
+FASE 4: AUTENTICACIÓN Y AUTORIZACIÓN (EL TICKET)
+Responsable: Usuario / Backend
+--------------------------------------------------------------------------------
+4.1 Validación de Identidad: El usuario se autentica en Next.js. El Backend 
+    verifica que el 'user_id' esté en el padrón de esa 'election_id' y que 
+    'has_voted' sea 'false'.
+4.2 Generación del Payload: El Backend prepara el paquete de datos:
+    [election_id, candidate_id, wallet_address, user_hash].
+4.3 Firma del Administrador: El Backend firma el paquete con su Clave Privada. 
+    Este "Ticket de Voto" es el único pase válido para el Smart Contract.
 
-Define el padrón electoral (selecciona qué usuarios de la base de datos tienen derecho a participar).
+--------------------------------------------------------------------------------
+FASE 5: VALIDACIÓN Y CONSENSO (EL CUÁDRUPLE CANDADO)
+Responsable: Smart Contract (EVM)
+--------------------------------------------------------------------------------
+El usuario envía el Ticket firmado a la Blockchain. El contrato aplica validación 
+atómica en tiempo O(1) mediante los siguientes candados:
 
-Guardado Local: El Backend (NestJS) guarda toda esta información en PostgreSQL. En este punto, la elección tiene un estado de DRAFT (Borrador) y el administrador todavía puede editar o eliminar cualquier dato.
+5.1 Candado 1 (Firma): Valida mediante 'ecrecover' que el ticket fue firmado 
+    por la Clave Privada del Administrador.
+5.2 Candado 2 (Integridad): Compara el Hi del ticket contra el Hi almacenado 
+    en la Fase 3 para ese 'election_id'.
+5.3 Candado 3 (Unicidad de Wallet): 
+    require(!hasVotedWallet[election_id][msg.sender]);
+5.4 Candado 4 (Unicidad de Usuario): 
+    require(!hasVotedUser[election_id][user_hash]);
 
-Fase 2: Publicación y Sellado (El Compromiso Inmutable)
-Aquí es donde la elección se vuelve oficial y se conecta con la blockchain.
+Si se cumplen todos, el contrato suma el voto y marca Wallet/Usuario como 
+'true' exclusivamente para esa elección.
 
-Acción de Publicar: El administrador presiona el botón "Publicar Elección".
+--------------------------------------------------------------------------------
+FASE 6: SINCRONIZACIÓN Y AUDITORÍA (EL CIERRE)
+Responsable: Frontend / Backend
+--------------------------------------------------------------------------------
+6.1 Notificación de Éxito: El Frontend recibe el 'tx_hash' de Ethereum y lo 
+    comunica al Backend.
+6.2 Clausura en DB: NestJS marca 'has_voted = true' para el usuario en dicha 
+    elección y almacena el 'tx_hash' como evidencia.
+6.3 Auditoría Pública: Los resultados finales se consultan directamente en el 
+    Smart Contract. La suma de votos es auditable contra el padrón original.
 
-Generación del Sello de Integridad: El Backend toma los datos cruciales de la elección (título, fechas, IDs de candidatos, IDs de votantes) y los pasa por una función criptográfica (ej. SHA-256) para generar un único Hash de Integridad.
-
-Despliegue de Datos al Contrato Maestro: El Backend, utilizando una billetera administradora (cuyas llaves privadas están seguras en tus variables de entorno), envía una transacción al Smart Contract Maestro en Ethereum ejecutando la función createElection().
-
-Registro en Blockchain: El contrato recibe y guarda:
-
-Un nuevo ID para esta elección (ej. electionId = 5).
-
-La cantidad de candidatos permitidos.
-
-La fecha de cierre.
-
-El Hash de Integridad.
-
-Bloqueo en Backend: El contrato devuelve el electionId de la blockchain. El Backend lo guarda, cambia el estado de la elección en la DB a PUBLISHED (Publicada) y, a partir de este momento, bloquea cualquier intento de edición (UPDATE/DELETE) en su API.
-
-Fase 3: Acceso y Descubrimiento (El Votante)
-La experiencia de usuario comienza.
-
-Autenticación: El estudiante/votante ingresa a la web con su usuario y contraseña institucionales.
-
-Filtrado de Elecciones: El Frontend pide al Backend las elecciones disponibles. El Backend busca en la tabla voter todas las elecciones PUBLISHED donde este user_id esté incluido y donde su campo has_voted sea false.
-
-Visualización: El usuario ve en su pantalla solo las elecciones en las que tiene derecho a votar y entra a una de ellas para ver a los candidatos.
-
-Fase 4: Autorización y Firma (La Magia sin Gas)
-El paso maestro de seguridad donde el Backend autoriza a la billetera.
-
-Selección: El usuario selecciona a su candidato preferido en la interfaz.
-
-Conexión de Billetera: Al presionar "Votar", la web le pide al usuario que conecte su billetera (MetaMask). El Frontend captura la dirección pública de esa billetera (ej. 0xUser123).
-
-Petición de Autorización: El Frontend envía una petición oculta al Backend: "El usuario autenticado quiere votar por el Candidato #2 usando la billetera 0xUser123".
-
-Validación Estricta: El Backend revisa la base de datos por última vez:
-
-¿Este usuario pertenece a esta elección? (Sí).
-
-¿Su campo has_voted es false? (Sí).
-
-¿La elección está dentro de la fecha límite? (Sí).
-
-Generación del Cupón Digital: Al pasar las validaciones, el Backend crea un mensaje empaquetado: [electionId, candidateId, walletAddress]. Luego, firma este paquete usando la Clave Privada del Administrador.
-
-Entrega: El Backend le devuelve al Frontend este "Cupón Firmado" (un string criptográfico largo). Hasta aquí, nadie ha gastado gas en la blockchain.
-
-Fase 5: Ejecución en la Blockchain (El Voto Inmutable)
-El usuario interactúa directamente con Ethereum.
-
-Firma del Usuario: El Frontend toma el Cupón Firmado y el ID del candidato, y le pide a MetaMask que ejecute la transacción hacia el Smart Contract.
-
-Pago de Gas: El usuario aprueba la transacción en MetaMask (pagando él mismo la pequeña comisión de red).
-
-Validación del Contrato Inteligente: La transacción llega a Ethereum. El Smart Contract ejecuta la función vote(electionId, candidateId, cuponFirmado). El contrato realiza tres chequeos matemáticos:
-
-Chequeo de Tiempo: ¿La elección sigue activa?
-
-Chequeo de Origen (ecrecover): ¿Este cupón fue realmente firmado por el Backend oficial? Si alguien alteró el cupón o intentó inventarlo, la firma no coincidirá y el contrato abortará la operación.
-
-Chequeo de Duplicidad: ¿La billetera 0xUser123 ya tiene un voto registrado en esta electionId?
-
-Registro Definitivo: Si todo es correcto, el contrato suma +1 al contador del candidato en la blockchain y marca a la billetera 0xUser123 como ha_votado = true. La transacción se sella en un bloque.
-
-Fase 6: Sincronización y Auditoría (El Recibo Final)
-Cerrando el ciclo para mantener la base de datos actualizada.
-
-El Recibo: La blockchain le devuelve a MetaMask un Hash de Transacción (tx_hash), que es el comprobante público de que la operación fue exitosa.
-
-Actualización Local: El Frontend envía este tx_hash a tu Backend.
-
-Bloqueo de Usuario: Tu Backend actualiza la tabla voter: marca has_voted = true para ese usuario y guarda el tx_hash. A partir de este momento, aunque el usuario conecte otra billetera distinta, el Backend ya no le generará un nuevo Cupón Firmado.
-
-Conteo Final: Cuando la fecha de cierre llega, el Frontend simplemente consulta las variables públicas del Smart Contract para mostrar los resultados en tiempo real y con precisión matemática.
+================================================================================
+FIN DEL PROTOCOLO
+================================================================================
