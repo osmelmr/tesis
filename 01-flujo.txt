@@ -1,90 +1,97 @@
 ================================================================================
 PROTOCOLO DE VOTACIÓN HÍBRIDO CON UNICIDAD CONTEXTUAL (WEB2 + WEB3)
+Versión Actualizada: Integración de Merkle Trees y Múltiples Candados
 ================================================================================
 
 DESCRIPCIÓN GENERAL:
-Este protocolo define la interacción entre un sistema de gestión de identidades 
-(Backend NestJS) y un registro inmutable (Smart Contract Ethereum). Garantiza 
-que la identidad humana y la clave criptográfica sean únicas (1:1:1) dentro de 
-un mismo evento, permitiendo su reutilización en diferentes procesos electorales.
+Este protocolo define la interacción entre el sistema de gestión centralizado 
+(Backend NestJS) y el registro inmutable (Smart Contract Ethereum). Garantiza 
+la privacidad del censo, la integridad de la elección y la unicidad del voto 
+($1:1:1$) utilizando pruebas criptográficas de inclusión (Merkle Proofs).
 
 --------------------------------------------------------------------------------
 FASE 1: CONFIGURACIÓN DE LA ELECCIÓN (EL GÉNESIS)
 Responsable: Administrador / Backend (NestJS)
 --------------------------------------------------------------------------------
-1.1 Definición de Metadatos: El administrador crea la elección en la plataforma. 
-    Se definen: título, descripción, fecha de inicio y fecha de cierre (Unix Timestamp).
+1.1 Definición de Metadatos: Se crea la elección en la plataforma (título, 
+    descripción, fecha de inicio y cierre).
 1.2 Registro de Candidatos: Se asignan identificadores únicos (candidate_id) 
-    a cada opción de voto.
+    a las opciones disponibles.
 1.3 Persistencia Inicial: Los datos se almacenan en PostgreSQL con estado 'DRAFT'. 
-    En esta etapa, la elección no tiene presencia en la Blockchain.
+    La elección aún no existe en la Blockchain.
 
 --------------------------------------------------------------------------------
-FASE 2: DEFINICIÓN DEL CENSO Y SELLADO DE INTEGRIDAD (EL SELLO)
+FASE 2: DEFINICIÓN DEL CENSO Y SELLADO (EL ANCLAJE CRIPTOGRÁFICO)
 Responsable: Backend (NestJS)
 --------------------------------------------------------------------------------
-2.1 Carga del Padrón Electoral: El administrador carga la lista de usuarios 
-    autorizados (IDs de estudiantes o correos institucionales).
-2.2 Cálculo del Hash de Integridad (Hi): El sistema genera una huella digital 
-    única (SHA-256) concatenando: 
-    [ID_temporal + Candidatos + Fechas + Lista_Votantes_Autorizados].
-2.3 Inmutabilidad del Padrón: Una vez generado el Hi, cualquier alteración en 
-    la lista de votantes o candidatos invalidará el hash, blindando la elección.
+2.1 Carga del Whitelist: El administrador define la lista final de usuarios 
+    autorizados (user_ids).
+2.2 Construcción del Árbol de Merkle: El sistema hashea cada user_id para 
+    crear las hojas del árbol y calcula jerárquicamente la "Merkle Root" 
+    (huella digital del censo completo).
+2.3 Cálculo del Hash de Integridad (Hi): Se genera un hash SHA-256 concatenando: 
+    [Título + Fecha_Cierre + IDs_Candidatos + Merkle_Root].
+    Cualquier alteración futura en la base de datos invalidará este hash.
 
 --------------------------------------------------------------------------------
-FASE 3: ANCLAJE EN LA RED (REGISTRO INMUTABLE)
-Responsable: Smart Contract / Blockchain
---------------------------------------------------------------------------------
-3.1 Transacción de Apertura: El Backend invoca la función 'crearEleccion()' 
-    en el Smart Contract Maestro.
-3.2 Registro On-Chain: La Blockchain almacena:
-    - election_id (Generado por el contrato).
-    - Hi (Hash de Integridad oficial).
-    - fecha_cierre (Timestamp de finalización).
-3.3 Sincronización: NestJS recibe el election_id oficial y actualiza el 
-    estado local a 'PUBLISHED'.
-
---------------------------------------------------------------------------------
-FASE 4: AUTENTICACIÓN Y AUTORIZACIÓN (EL TICKET)
-Responsable: Usuario / Backend
---------------------------------------------------------------------------------
-4.1 Validación de Identidad: El usuario se autentica en Next.js. El Backend 
-    verifica que el 'user_id' esté en el padrón de esa 'election_id' y que 
-    'has_voted' sea 'false'.
-4.2 Generación del Payload: El Backend prepara el paquete de datos:
-    [election_id, candidate_id, wallet_address, user_hash].
-4.3 Firma del Administrador: El Backend firma el paquete con su Clave Privada. 
-    Este "Ticket de Voto" es el único pase válido para el Smart Contract.
-
---------------------------------------------------------------------------------
-FASE 5: VALIDACIÓN Y CONSENSO (EL CUÁDRUPLE CANDADO)
+FASE 3: DESPLIEGUE EN LA RED (REGISTRO INMUTABLE)
 Responsable: Smart Contract (EVM)
 --------------------------------------------------------------------------------
-El usuario envía el Ticket firmado a la Blockchain. El contrato aplica validación 
-atómica en tiempo O(1) mediante los siguientes candados:
+3.1 Transacción de Apertura: NestJS invoca 'crearEleccion()' en el Smart Contract.
+3.2 Registro On-Chain: La Blockchain almacena permanentemente las variables de 
+    control para esa elección:
+    - election_id (ID generado por la red).
+    - Hi (Hash de Integridad de la estructura).
+    - merkle_root (Sello del Whitelist electoral).
+    - fecha_cierre (Timestamp).
+3.3 Sincronización: NestJS recibe el election_id oficial y actualiza la base 
+    de datos local al estado 'PUBLISHED'.
 
-5.1 Candado 1 (Firma): Valida mediante 'ecrecover' que el ticket fue firmado 
-    por la Clave Privada del Administrador.
-5.2 Candado 2 (Integridad): Compara el Hi del ticket contra el Hi almacenado 
-    en la Fase 3 para ese 'election_id'.
-5.3 Candado 3 (Unicidad de Wallet): 
-    require(!hasVotedWallet[election_id][msg.sender]);
-5.4 Candado 4 (Unicidad de Usuario): 
-    require(!hasVotedUser[election_id][user_hash]);
+--------------------------------------------------------------------------------
+FASE 4: AUTENTICACIÓN Y AUTORIZACIÓN (LA EMISIÓN DEL TICKET)
+Responsable: Usuario / Backend (NestJS)
+--------------------------------------------------------------------------------
+4.1 Autenticación: El usuario ingresa mediante Next.js. El backend verifica 
+    en su base de datos local que pertenece a la elección y no ha votado aún.
+4.2 Extracción de la Prueba: El backend calcula la "Merkle Proof" específica 
+    para el hash de ese usuario (los nodos hermanos necesarios para llegar a 
+    la raíz).
+4.3 Firma y Ensamblaje: El Backend prepara el Payload [election_id, candidate_id, 
+    wallet_address, user_hash, merkle_proof] y lo firma con su Clave Privada 
+    (ECDSA). Este paquete se entrega al Frontend.
 
-Si se cumplen todos, el contrato suma el voto y marca Wallet/Usuario como 
-'true' exclusivamente para esa elección.
+--------------------------------------------------------------------------------
+FASE 5: VALIDACIÓN ATÓMICA Y CONSENSO (EL CUÁDRUPLE CANDADO)
+Responsable: Smart Contract (EVM)
+--------------------------------------------------------------------------------
+El usuario envía la transacción a la red. El Smart Contract ejecuta las 
+siguientes validaciones en tiempo $O(1)$ antes de registrar el voto:
+
+5.1 Candado 1 (Firma - Origen): Ejecuta 'ecrecover' sobre el ticket. La firma 
+    debe corresponder a la Clave Pública del Backend administrador.
+5.2 Candado 2 (Integridad - Estructura): Verifica que el Hi enviado coincida 
+    con el Hi almacenado en la Fase 3, asegurando que no se alteraron candidatos.
+5.3 Candado 3 (Pertenencia - Merkle): Combina el 'user_hash' aportado con la 
+    'merkle_proof'. El resultado debe ser matemáticamente idéntico a la 
+    'merkle_root' almacenada. (Verifica que el votante existe en el Whitelist).
+5.4 Candado 4 (Unicidad Dual - Doble Gasto):
+    - require(!hasVotedWallet[election_id][msg.sender]);
+    - require(!hasVotedUser[election_id][user_hash]);
+
+Si se superan los 4 candados, el contrato incrementa el contador del candidato 
+y marca el 'user_hash' y la 'wallet' como 'true' para ese 'election_id'.
 
 --------------------------------------------------------------------------------
 FASE 6: SINCRONIZACIÓN Y AUDITORÍA (EL CIERRE)
 Responsable: Frontend / Backend
 --------------------------------------------------------------------------------
 6.1 Notificación de Éxito: El Frontend recibe el 'tx_hash' de Ethereum y lo 
-    comunica al Backend.
-6.2 Clausura en DB: NestJS marca 'has_voted = true' para el usuario en dicha 
-    elección y almacena el 'tx_hash' como evidencia.
-6.3 Auditoría Pública: Los resultados finales se consultan directamente en el 
-    Smart Contract. La suma de votos es auditable contra el padrón original.
+    envía al Backend para mantener consistencia.
+6.2 Clausura Local: NestJS marca 'has_voted = true' para el usuario en esa 
+    elección, guardando el 'tx_hash' como evidencia.
+6.3 Auditoría Pública: Los resultados, protegidos por el anonimato del 
+    user_hash, pueden ser auditados directamente contra el Smart Contract sin 
+    depender del servidor central.
 
 ================================================================================
 FIN DEL PROTOCOLO
