@@ -1,0 +1,89 @@
+================================================================================
+ESPECIFICACIÓN DE REQUISITOS FUNCIONALES (ERS)
+PROYECTO: SISTEMA DE VOTACIÓN HÍBRIDO (NESTJS + ETHEREUM)
+================================================================================
+
+1. MÓDULO DE GESTIÓN DE IDENTIDAD Y ACCESO (WEB2)
+--------------------------------------------------------------------------------
+RF-01: Autenticación de Usuario
+  - El sistema debe validar las credenciales (email y password_hash) contra 
+    la tabla 'users' para permitir el acceso.
+RF-02: Control de Estado de Usuario
+  - El sistema debe denegar el acceso a cualquier usuario cuyo atributo 
+    'status' en la tabla 'users' sea diferente a 'ACTIVE'.
+RF-03: Vinculación de Billetera (Wallet)
+  - El frontend (Next.js) debe permitir la conexión de una billetera Ethereum 
+    (vía Provider Web3) y asociar la dirección pública al flujo de la votación.
+
+2. MÓDULO ADMINISTRATIVO Y CONFIGURACIÓN (BACKEND NESTJS)
+--------------------------------------------------------------------------------
+RF-04: Registro de Elección (Estado DRAFT)
+  - El sistema debe permitir crear una elección definiendo título, descripción, 
+    fecha de inicio y fecha de cierre (Unix Timestamp).
+RF-05: Gestión de Candidaturas
+  - El sistema debe permitir registrar candidatos vinculados a una elección 
+    específica, asignándoles un 'candidate_number' único dentro de ese proceso.
+RF-06: Inmutabilidad en Fase de Diseño
+  - El sistema debe impedir la modificación de candidatos o fechas una vez 
+    que la elección cambie de estado 'DRAFT' a 'PUBLISHED'.
+
+3. MÓDULO DE SELLADO CRIPTOGRÁFICO Y WHITELIST (MERKLE TREE)
+--------------------------------------------------------------------------------
+RF-07: Generación de Identidad Anónima (User Hash)
+  - El sistema debe calcular un hash Keccak256 del 'user_id' para cada usuario 
+    en el padrón electoral, almacenándolo en la tabla 'whitelist'.
+RF-08: Construcción de la Raíz de Merkle (Merkle Root)
+  - El sistema debe calcular jerárquicamente la raíz de un árbol de Merkle 
+    utilizando todos los 'user_hash' de una elección.
+RF-09: Generación del Hash de Integridad (Hi)
+  - El sistema debe generar un hash SHA-256 único concatenando: 
+    [Título + Fecha_Cierre + IDs_Candidatos + Merkle_Root].
+
+4. MÓDULO DE INTEGRACIÓN ON-CHAIN (SMART CONTRACT)
+--------------------------------------------------------------------------------
+RF-10: Despliegue de Elección en Blockchain
+  - El Smart Contract debe registrar permanentemente el 'election_id', 
+    el 'Hi' y la 'merkle_root' mediante una transacción firmada por el admin.
+RF-11: Sincronización de Identificadores
+  - El backend debe capturar el ID oficial retornado por la Blockchain y el 
+    address del contrato para actualizar la tabla 'elections'.
+
+5. MÓDULO DE EMISIÓN DE TICKET Y AUTORIZACIÓN (OFF-CHAIN)
+--------------------------------------------------------------------------------
+RF-12: Validación de Elegibilidad y Unicidad Local
+  - El backend debe verificar que el usuario pertenezca a la 'whitelist' y 
+    que el campo 'has_voted' sea 'false' antes de generar un ticket.
+RF-13: Generación de Merkle Proof
+  - El sistema debe proveer los nodos hermanos (Proof) necesarios para que 
+    el 'user_hash' del votante alcance la 'merkle_root' almacenada.
+RF-14: Firma Digital de Ticket (ECDSA)
+  - El backend debe firmar con su clave privada el payload del voto 
+    (election_id, candidate_id, user_hash, proof) para enviarlo al frontend.
+
+6. MÓDULO DE VALIDACIÓN Y CONSENSO (VALIDACIÓN ATÓMICA ON-CHAIN)
+--------------------------------------------------------------------------------
+RF-15: Validación Temporal On-chain
+  - El Smart Contract debe rechazar el voto si el 'block.timestamp' es 
+    mayor al 'end_timestamp' de la elección.
+RF-16: Validación de Firma de Origen
+  - El Smart Contract debe usar 'ecrecover' para asegurar que el ticket de 
+    votación fue firmado exclusivamente por el backend autorizado.
+RF-17: Validación de Inclusión (Merkle Proof)
+  - El Smart Contract debe verificar matemáticamente que el 'user_hash' 
+    pertenece a la 'merkle_root' usando la 'merkle_proof' enviada.
+RF-18: Prevención de Doble Voto (Wallet y Usuario)
+  - El Smart Contract debe invalidar la transacción si el 'msg.sender' (wallet) 
+    o el 'user_hash' (usuario) ya tienen un registro de voto previo.
+
+7. MÓDULO DE CIERRE Y ESCRUTINIO
+--------------------------------------------------------------------------------
+RF-19: Registro de Evidencia de Transacción (TX Hash)
+  - El sistema debe almacenar el 'tx_hash' de la red Ethereum en la tabla 
+    'whitelist' al confirmar el éxito del voto.
+RF-20: Consulta de Resultados Inmutables
+  - El sistema debe permitir la lectura de los contadores de votos directamente 
+    desde el Smart Contract (función view) para garantizar transparencia.
+
+================================================================================
+FIN DE LA ESPECIFICACIÓN
+================================================================================

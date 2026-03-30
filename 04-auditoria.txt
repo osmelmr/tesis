@@ -1,0 +1,79 @@
+================================================================================
+MODELO DE AUDITORÍA Y VERIFICACIÓN DEL PROTOCOLO DE VOTACIÓN HÍBRIDO
+================================================================================
+
+El sistema implementa un modelo de confianza basado en la Verificabilidad 
+Extremo-a-Extremo (E2E). Este protocolo permite que cualquier interesado 
+(votante, candidato o auditor externo) valide la integridad de la elección 
+mediante tres niveles de comprobación técnica:
+
+--------------------------------------------------------------------------------
+NIVEL 1: VERIFICACIÓN INDIVIDUAL (CAST-AS-INTENDED)
+--------------------------------------------------------------------------------
+OBJETIVO: Confirmar que el voto individual fue registrado en la Blockchain 
+tal como el usuario lo emitió.
+
+PROCEDIMIENTO:
+1. Tras confirmar el voto, el sistema (NestJS) entrega al usuario un 
+   identificador único de transacción (tx_hash).
+2. El usuario accede a un explorador de bloques independiente (ej. Etherscan).
+3. Al consultar su tx_hash, el usuario debe verificar tres puntos:
+   a) Status: "Success" (Indica ejecución exitosa de la lógica del contrato).
+   b) To: Dirección del Smart Contract oficial de la elección.
+   c) Logs: Emisión de un evento "VoteCast" (confirma la acción sin revelar 
+      el candidato seleccionado).
+
+GARANTÍA: Si la transacción es exitosa, la naturaleza determinista de la EVM 
+(Ethereum Virtual Machine) garantiza que el contador interno del candidato 
+en el Smart Contract se incrementó obligatoriamente.
+
+--------------------------------------------------------------------------------
+NIVEL 2: VERIFICACIÓN DE ELEGIBILIDAD (CENSORSHIP-RESISTANCE)
+--------------------------------------------------------------------------------
+OBJETIVO: Demostrar que el censo no fue manipulado y que no se inyectaron 
+votantes falsos tras el inicio de la elección.
+
+PROCEDIMIENTO:
+1. El auditor descarga la lista pública de "user_hashes" desde la tabla 
+   Whitelist de la base de datos centralizada.
+2. El auditor aplica el algoritmo de construcción de Merkle Tree sobre 
+   dicha lista de hashes.
+3. El auditor compara la raíz resultante (Calculated Root) con la 
+   "merkle_root" almacenada de forma inmutable en el Smart Contract.
+
+GARANTÍA: Si Calculated_Root == Contract.merkleRoot, queda demostrado 
+matemáticamente que la lista de personas autorizadas es idéntica a la que 
+se selló al inicio. Cualquier inserción o borrado posterior invalidaría 
+la prueba de Merkle.
+
+--------------------------------------------------------------------------------
+NIVEL 3: VERIFICACIÓN DEL ESCRUTINIO FINAL (UNIVERSAL)
+--------------------------------------------------------------------------------
+OBJETIVO: Validar que el resultado final es la suma exacta de todas las 
+voluntades expresadas, garantizando la consistencia entre Web2 y Web3.
+
+PROCEDIMIENTO:
+El auditor realiza una Triangulación de Consistencia mediante la fórmula:
+V_total = Sumatoria(C_i) = T_blockchain = U_whitelist
+
+Donde:
+- Sumatoria(C_i): Suma de los contadores de todos los candidatos en el contrato.
+- T_blockchain: Número total de transacciones exitosas dirigidas al contrato.
+- U_whitelist: Cantidad de registros en la DB con estado "has_voted = true".
+
+GARANTÍA: La coincidencia de estos tres valores elimina la posibilidad de que 
+el backend haya manipulado los resultados o que se hayan omitido votos.
+
+--------------------------------------------------------------------------------
+RESUMEN DE PROPIEDADES DE SEGURIDAD
+--------------------------------------------------------------------------------
+- PRIVACIDAD: El Smart Contract suma el voto pero nunca vincula la identidad 
+  del emisor (user_hash) con la opción elegida (candidate_id).
+- INMUTABILIDAD: Una vez que el contador sube en la Blockchain, nadie 
+  (ni el administrador ni un atacante) puede reducirlo o modificarlo.
+- TRANSPARENCIA: El código del Smart Contract es abierto y auditable, permitiendo 
+  verificar que no existen funciones ocultas de manipulación.
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================

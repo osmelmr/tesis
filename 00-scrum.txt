@@ -1,0 +1,48 @@
+PARTE 1: La Estructura (Roles, Artefactos y Eventos)
+1. ROLES (Las funciones que asumes)
+Product Owner: Define el "qué". Prioriza requisitos por valor de negocio (ej: seguridad blockchain).
+
+Scrum Master: Define el "cómo" (metodología). Elimina bloqueos y asegura el flujo.
+
+Team (Devs): Construye el software. Estima el esfuerzo y escribe código (Next/Nest/Solidity).
+
+2. ARTEFACTOS (Documentación y Resultados)
+Product Backlog: Lista maestra de todos los Requisitos Funcionales (RF). Está siempre viva.
+
+Sprint Backlog: Lista de tareas técnicas para el Sprint actual. Se crea en el Planning.
+
+Incremento: Software real, probado y funcional al cierre del Sprint. No es un documento, es código.
+
+3. EVENTOS (El Ciclo de Vida)
+Sprint: Contenedor de tiempo fijo (Timebox). No se alarga ni se acorta.
+
+Sprint Planning: Selección de RF del Product Backlog para crear el Sprint Backlog.
+
+Daily Scrum: Sincronización diaria (15 min) para revisar progreso y bloqueos.
+
+Sprint Review: Demostración del Incremento terminado para obtener feedback.
+
+Sprint Retrospective: Análisis del proceso para mejorar la eficiencia del equipo.
+
+PARTE 2: El Proceso (Flujo y Aclaraciones Técnicas)
+EL FLUJO CRONOLÓGICO
+Product Backlog Inicial: Listas todos los RF de tu tesis.
+
+Estimación Inicial (Roadmap): Calculas un número aproximado de Sprints (ej: 4 Sprints).
+
+Hito de Inicio (Sprint Planning): Definas el contenido exclusivo del Sprint 1 (Sprint Backlog).
+
+Desarrollo: Ciclo de Sprints. Si terminas antes, traes más tareas; si no terminas, lo pendiente vuelve al Product Backlog.
+
+Cierre de Ciclo: Presentas el Incremento y haces la Retrospective.
+
+Re-planificación: Inicias el siguiente Sprint Planning ajustando según tu Velocidad real.
+
+ACLARACIONES CLAVE (Dudas Resueltas)
+¿Cuándo termina el Sprint? Siempre cuando se agota el tiempo (Timebox), nunca porque se acaben las tareas.
+
+¿Cuándo se crea el Sprint Backlog? Solo al inicio de cada Sprint, nunca todos al principio del proyecto. Es un plan a corto plazo.
+
+¿Qué es la Velocidad? El número de requisitos completados realmente en un Sprint. Sirve para ajustar el plan de los siguientes Sprints.
+
+¿Incremento vs Documento? El Incremento es la web funcionando. La documentación de la tesis registra la evolución de estos incrementos.

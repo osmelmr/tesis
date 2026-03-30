@@ -1,0 +1,107 @@
+DOCUMENTO: ESPECIFICACIÓN DE HISTORIAS DE USUARIO - CAPÍTULO 2
+BLOQUE 2: EMISIÓN DE VOTO Y VALIDACIÓN DESCENTRALIZADA
+SISTEMA DE VOTACIÓN ELECTRÓNICA BASADO EN BLOCKCHAIN
+---------------------------------------------------------------------------
+
+I. INTRODUCCIÓN DEL BLOQUE
+Este bloque de Historias de Usuario (HU) detalla la interacción entre el elector 
+y el sistema durante la fase operativa. Se describe el flujo desde la 
+autenticación en el servidor central hasta la persistencia inmutable del 
+sufragio en la red descentralizada, garantizando el anonimato y la integridad 
+mediante pruebas criptográficas.
+
+---------------------------------------------------------------------------
+
+HU-05: AUTENTICACIÓN Y VERIFICACIÓN DE ELEGIBILIDAD
+Referencia: RF-12, RF-4.1
+
+Descripción:
+Como Estudiante (Elector), requiero iniciar sesión en la plataforma y verificar 
+mi habilitación en el censo electoral, con el fin de acceder exclusivamente a 
+los procesos de votación en los que poseo derechos de participación.
+
+Criterios de Aceptación:
+1. Validación de Identidad: El sistema debe validar el JSON Web Token (JWT) 
+   del usuario contra la base de datos de identidad.
+2. Comprobación de Censo: El backend (NestJS) debe consultar la tabla 
+   "whitelist" para confirmar la pertenencia del "user_id" a la elección activa.
+3. Control de Unicidad (Preventivo): Si el atributo "has_voted" es "true", 
+   el sistema debe denegar el acceso a la urna virtual y desplegar un mensaje 
+   informativo de "Voto ya emitido".
+
+---------------------------------------------------------------------------
+
+HU-06: SOLICITUD DE TICKET Y FIRMA DIGITAL DE AUTORIZACIÓN
+Referencia: RF-13, RF-14
+
+Descripción:
+Como Estudiante (Elector), requiero obtener un comprobante digital firmado 
+por el servidor que incluya mi prueba de inclusión en el censo, para 
+garantizar que el voto enviado al Smart Contract es legítimo y autorizado.
+
+Criterios de Aceptación:
+1. Generación de Prueba: El backend debe calcular la "Merkle Proof" 
+   correspondiente al "user_hash" del estudiante solicitante.
+2. Firma de Servidor (ECDSA): El sistema debe firmar criptográficamente un 
+   payload que contenga el "election_id", "candidate_id" y la "merkle_proof".
+3. Entrega Segura: El frontend (Next.js) debe recibir y almacenar 
+   temporalmente este ticket para su posterior envío a la red blockchain.
+
+---------------------------------------------------------------------------
+
+HU-07: EMISIÓN DE VOTO EN BLOCKCHAIN
+Referencia: RF-15, RF-16, RF-17, RF-18
+
+Descripción:
+Como Estudiante (Elector), requiero enviar mi voto firmado desde mi billetera 
+digital personal hacia la red Ethereum, asegurando que mi elección sea 
+registrada de forma inmutable, pública y auditable.
+
+Criterios de Aceptación:
+1. Interconectividad de Web3: El usuario debe poder vincular su billetera 
+   (ej. MetaMask) con la interfaz de usuario.
+2. Validación por "Cuádruple Candado": El Smart Contract debe ejecutar de 
+   forma atómica las validaciones de Firma, Integridad de Datos, Pertenencia 
+   a la Raíz de Merkle y Unicidad del voto.
+3. Confirmación On-chain: Ante una transacción exitosa, el contrato debe 
+   emitir el evento "VoteCast" para su indexación.
+
+---------------------------------------------------------------------------
+
+HU-08: SINCRONIZACIÓN DE COMPROBANTE Y CIERRE DE REGISTRO
+Referencia: RF-19, RF-6.1
+
+Descripción:
+Como Administrador/Auditor, requiero que el sistema registre el hash de la 
+transacción de cada voto emitido, con el objetivo de mantener una trazabilidad 
+off-chain que permita auditar la participación sin comprometer el secreto del voto.
+
+Criterios de Aceptación:
+1. Captura de Transacción: Tras la confirmación del bloque, el frontend debe 
+   notificar el "tx_hash" al backend.
+2. Actualización de Estado: El backend debe marcar de forma definitiva el 
+   campo "has_voted" como "true" en la base de datos PostgreSQL.
+3. Vínculo de Auditoría: El "tx_hash" debe quedar almacenado y relacionado 
+   al registro del usuario para permitir verificaciones cruzadas futuras.
+
+---------------------------------------------------------------------------
+
+HU-09: CONSULTA DE RESULTADOS E INTEGRIDAD PÚBLICA
+Referencia: RF-20, RF-7.2
+
+Descripción:
+Como Usuario del sistema, requiero visualizar el escrutinio final obtenido 
+directamente de la Blockchain, para garantizar la transparencia del proceso 
+y verificar que los resultados son independientes de cualquier manipulación externa.
+
+Criterios de Aceptación:
+1. Lectura Descentralizada: La interfaz debe realizar llamadas de solo lectura 
+   (view) al Smart Contract para extraer los totales acumulados por candidato.
+2. Restricción Temporal: Los resultados solo serán accesibles una vez superado 
+   el "end_timestamp" configurado para la elección.
+3. Verificabilidad Individual: El sistema debe facilitar el acceso al 
+   explorador de bloques (ej. Etherscan) mediante el "tx_hash" del usuario 
+   para confirmar la existencia y validez de su voto.
+
+---------------------------------------------------------------------------
+FIN DEL BLOQUE 2

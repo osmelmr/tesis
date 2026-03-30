@@ -1,0 +1,67 @@
+DOCUMENTO: PLANIFICACIÓN DEL DESARROLLO - PRODUCT BACKLOG ESTIMADO
+PROYECTO: SISTEMA DE VOTACIÓN ELECTRÓNICA BASADO EN BLOCKCHAIN
+METODOLOGÍA: ÁGIL (SCRUM)
+---------------------------------------------------------------------------
+
+I. TABLA DEL PRODUCT BACKLOG PRIORIZADO
+La siguiente tabla presenta la relación de Historias de Usuario (HU), su 
+prioridad dentro del sistema y la estimación de esfuerzo basada en la 
+escala de Fibonacci (1, 2, 3, 5, 8, 13).
+
+| ID    | Título de la Historia de Usuario       | Prioridad | Puntos | Justificación Técnica del Esfuerzo          |
+|-------|----------------------------------------|-----------|--------|---------------------------------------------|
+| HU-01 | Creación de Proceso Electoral          | Alta      | 3      | Operaciones CRUD estándar en NestJS/PostgreSQL|
+| HU-02 | Registro de Candidatos                 | Alta      | 2      | Gestión de relaciones 1:N en persistencia.  |
+| HU-03 | Carga y Anonimización del Censo        | Alta      | 5      | Lógica de hashing masivo (Keccak256).       |
+| HU-04 | Sellado y Generación de Merkle Root    | Crítica   | 8      | Implementación de estructuras Merkle Tree.  |
+| HU-05 | Autenticación y Elegibilidad           | Alta      | 3      | Middleware de seguridad y manejo de JWT.    |
+| HU-06 | Solicitud de Ticket y Firma Digital    | Crítica   | 8      | Generación de Merkle Proofs y firma ECDSA.  |
+| HU-07 | Emisión de Voto en Blockchain          | Crítica   | 13     | Integración Web3 y lógica de Smart Contract.|
+| HU-08 | Sincronización de Comprobante (Hash)   | Media     | 5      | Monitoreo de eventos on-chain y actualización.|
+| HU-09 | Consulta de Resultados e Integridad    | Media     | 3      | Llamadas de solo lectura (View) a la red.   |
+|-------|----------------------------------------|-----------|--------|---------------------------------------------|
+| TOTAL |                                        |           | 50     |                                             |
+
+---------------------------------------------------------------------------
+
+II. ANÁLISIS TÉCNICO DE LAS ESTIMACIONES (PARA DEFENSA DE TESIS)
+
+El proceso de estimación se realizó considerando tres variables críticas: 
+complejidad algorítmica, incertidumbre técnica e interacción entre capas 
+(Frontend, Backend y Blockchain).
+
+1. COMPLEJIDAD CRIPTOGRÁFICA Y ON-CHAIN (Puntos 8 y 13):
+   Las historias HU-04, HU-06 y HU-07 representan el núcleo de innovación 
+   de la tesis. El puntaje máximo (13) asignado a la Emisión de Voto 
+   responde a la necesidad de gestionar transacciones asíncronas, el manejo 
+   de "gas" en la red Ethereum y la ejecución del protocolo de "Cuádruple 
+   Candado" dentro del Smart Contract. Las tareas de puntaje 8 requieren 
+   una implementación matemática precisa para garantizar la auditabilidad 
+   del sistema.
+
+2. DESARROLLO WEB TRADICIONAL (Puntos 2 y 3):
+   Funcionalidades como la creación de elecciones (HU-01) o la gestión de 
+   candidatos (HU-02) se consideran de baja complejidad relativa, ya que 
+   utilizan patrones de diseño establecidos en el framework NestJS y no 
+   comprometen la capa de seguridad criptográfica del protocolo.
+
+3. INTEGRACIÓN HÍBRIDA (Punto 5):
+   La HU-03 y HU-08 poseen un puntaje intermedio debido a que actúan como 
+   puentes de sincronización entre el estado centralizado (PostgreSQL) y 
+   el estado descentralizado (Blockchain), requiriendo validaciones de 
+   consistencia de datos.
+
+---------------------------------------------------------------------------
+
+III. PROYECCIÓN DE VELOCIDAD DEL PROYECTO
+Tomando como base el total de 50 Puntos de Historia, el desarrollo se 
+estructurará en un ciclo de vida incremental compuesto por:
+
+- Cantidad de Sprints: 5 iteraciones.
+- Velocidad Promedio: 10 Puntos por Sprint.
+- Objetivo: Garantizar una entrega funcional del núcleo criptográfico 
+  para el Sprint 3, dejando las fases de auditoría y resultados para 
+  el cierre del ciclo de desarrollo.
+
+---------------------------------------------------------------------------
+FIN DEL DOCUMENTO DE PLANIFICACIÓN

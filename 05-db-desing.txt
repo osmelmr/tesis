@@ -1,0 +1,71 @@
+================================================================================
+DISEÑO DE ESTRUCTURA DE DATOS CENTRALIZADA (BACKEND NESTJS)
+SISTEMA DE VOTACIÓN HÍBRIDO CON UNICIDAD CONTEXTUAL
+================================================================================
+
+1. DESCRIPCIÓN DEL MODELO
+--------------------------------------------------------------------------------
+El esquema de base de datos utiliza PostgreSQL como motor de persistencia. El 
+objetivo es gestionar la identidad de los usuarios (Web2), la configuración de 
+las elecciones y el almacenamiento de evidencias criptográficas (tx_hash) para 
+la auditoría final, manteniendo el anonimato del voto en la Blockchain (Web3).
+
+2. DEFINICIÓN FORMAL DE TABLAS Y ATRIBUTOS
+--------------------------------------------------------------------------------
+
+TABLA: users (Censo Global)
+- id: UUID (PK) -> Identificador único interno.
+- email: String (Unique) -> Correo para autenticación.
+- password_hash: String -> Credenciales cifradas.
+- full_name: String -> Nombre real del elector.
+- status: Enum (ACTIVE, INACTIVE) -> Control de acceso al sistema.
+
+TABLA: elections (Configuración y Anclaje)
+- id: UUID (PK) -> ID interno del sistema.
+- blockchain_id: Integer (Nullable) -> ID oficial retornado por el Smart Contract.
+- title: String -> Nombre de la elección.
+- description: Text -> Detalles informativos.
+- start_date: DateTime -> Fecha de apertura.
+- end_date: DateTime -> Fecha de cierre (Timestamp para validación on-chain).
+- merkle_root: String (Nullable) -> Raíz calculada del censo (Sello del Whitelist).
+- integrity_hash: String (Nullable) -> Hash Hi [Título + Fecha + Candidatos].
+- contract_address: String -> Dirección del Smart Contract desplegado.
+- status: Enum (DRAFT, PUBLISHED, CLOSED) -> Ciclo de vida de la elección.
+
+TABLA: candidates (Opciones de Votación)
+- id: UUID (PK) -> ID interno.
+- election_id: UUID (FK) -> Relación con la tabla elections.
+- name: String -> Nombre del candidato u opción.
+- candidate_number: Integer -> ID numérico que reconoce el Smart Contract.
+- UNIQUE(election_id, candidate_number) -> Evita duplicidad de índices.
+
+TABLA: whitelist (Puente de Identidad y Auditoría)
+- id: UUID (PK) -> ID del registro.
+- election_id: UUID (FK) -> Vínculo con la elección específica.
+- user_id: UUID (FK) -> Vínculo con el usuario real.
+- user_hash: String -> Hash keccak256(user_id) usado como hoja en el Merkle Tree.
+- has_voted: Boolean (Default: false) -> Control de flujo local en NestJS.
+- tx_hash: String (Nullable) -> Comprobante de la transacción en Ethereum.
+- UNIQUE(election_id, user_id) -> Un usuario solo pertenece una vez a una elección.
+- UNIQUE(election_id, user_hash) -> Garantiza unicidad en la prueba de Merkle.
+
+3. RELACIONES LÓGICAS
+--------------------------------------------------------------------------------
+- Una Elección (Election) tiene N Candidatos (Candidates).
+- Una Elección (Election) tiene N Registros en el Censo (Whitelist).
+- Un Usuario (User) puede estar presente en N Elecciones (vía Whitelist).
+- El Voto NO se almacena en ninguna tabla; reside como cambio de estado 
+  en la Blockchain asociado al tx_hash guardado en la tabla Whitelist.
+
+4. FLUJO DE OPERACIÓN SOBRE LOS DATOS
+--------------------------------------------------------------------------------
+1. FASE 2 (Sellado): El sistema consulta la tabla 'whitelist', genera el 
+   Merkle Tree y actualiza 'elections.merkle_root'.
+2. FASE 4 (Ticket): El backend verifica 'whitelist.has_voted' == false, 
+   genera la Merkle Proof y firma el ticket con la clave privada del servidor.
+3. FASE 6 (Cierre): Al recibir el éxito de la red, el backend actualiza 
+   'whitelist.has_voted' = true y guarda el 'tx_hash' del usuario.
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================

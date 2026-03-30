@@ -1,0 +1,90 @@
+DOCUMENTO: ESPECIFICACIÓN DE HISTORIAS DE USUARIO - CAPÍTULO 2
+BLOQUE 1: GESTIÓN DE PROCESOS ELECTORALES (BACKEND & ADMINISTRACIÓN)
+SISTEMA DE VOTACIÓN ELECTRÓNICA BASADO EN BLOCKCHAIN
+---------------------------------------------------------------------------
+
+I. INTRODUCCIÓN DEL BLOQUE
+Las siguientes Historias de Usuario (HU) describen las funcionalidades del 
+administrador del sistema durante las fases de Configuración y Sellado del 
+proceso electoral. Se centran en el establecimiento de la integridad de los 
+datos antes de su persistencia inmutable en la red blockchain.
+
+---------------------------------------------------------------------------
+
+HU-01: CREACIÓN DE PROCESO ELECTORAL
+Referencia: RF-04, RF-2.1
+
+Descripción:
+Como Administrador del sistema, requiero registrar una nueva elección con sus 
+metadatos correspondientes (título, descripción y marco temporal), con el 
+objetivo de establecer el contexto legal y cronológico del proceso de votación.
+
+Criterios de Aceptación:
+1. Interfaz de Entrada: El sistema debe permitir el ingreso de título, 
+   descripción detallada y un rango de fechas (inicio y fin).
+2. Persistencia: Se debe generar un Identificador Único Universal (UUID) 
+   para la elección en la base de datos relacional (PostgreSQL).
+3. Estado del Ciclo de Vida: El registro debe inicializarse con el estado 
+   "DRAFT" (Borrador), impidiendo cualquier interacción externa hasta su 
+   publicación oficial.
+
+---------------------------------------------------------------------------
+
+HU-02: REGISTRO DE CANDIDATOS
+Referencia: RF-05, RF-2.2
+
+Descripción:
+Como Administrador del sistema, requiero asignar y gestionar la lista de 
+candidatos para una elección específica, asegurando que los electores 
+dispongan de opciones válidas y estructuradas para el ejercicio del voto.
+
+Criterios de Aceptación:
+1. Relacionalidad: Cada candidato debe estar vinculado de forma obligatoria 
+   a un "election_id" existente.
+2. Indexación para Smart Contract: Se debe asignar un "candidate_number" 
+   consecutivo, el cual actuará como el índice de referencia dentro de la 
+   lógica del Contrato Inteligente (Solidity).
+3. Restricción de Integridad: El sistema debe validar la no duplicidad de 
+   números de candidatos dentro de un mismo proceso electoral.
+
+---------------------------------------------------------------------------
+
+HU-03: CARGA Y ANONIMIZACIÓN DEL CENSO ELECTORAL
+Referencia: RF-07, RF-3.1
+
+Descripción:
+Como Administrador del sistema, requiero importar la lista de usuarios 
+autorizados y proceder a su anonimización mediante técnicas criptográficas, 
+garantizando la privacidad de la identidad del votante previo al sellado 
+del proceso.
+
+Criterios de Aceptación:
+1. Selección de Electorado: El sistema debe permitir la migración de 
+   usuarios desde la tabla maestra de usuarios hacia la "whitelist" específica 
+   de la elección.
+2. Aplicación Criptográfica: Se debe calcular de forma automatizada el 
+   "user_hash" aplicando el algoritmo Keccak256 sobre el "user_id".
+3. Control de Estado: El atributo "has_voted" debe ser inicializado por 
+   defecto en "false" para cada registro del censo.
+
+---------------------------------------------------------------------------
+
+HU-04: SELLADO DE LA ELECCIÓN Y GENERACIÓN DE RAÍZ DE MERKLE
+Referencia: RF-08, RF-09, RF-3.3
+
+Descripción:
+Como Administrador del sistema, requiero generar un Hash de Integridad y la 
+Raíz de Merkle del censo electoral, con el fin de anclar la configuración 
+del proceso de forma inmutable y auditable en la arquitectura blockchain.
+
+Criterios de Aceptación:
+1. Estructura de Datos (Merkle Tree): El sistema debe computar la "merkle_root" 
+   utilizando el conjunto de "user_hash" generados en la HU-03.
+2. Hash de Integridad (Hi): Se debe generar un identificador único (integrity_hash) 
+   mediante la concatenación y hashing de los metadatos de la elección.
+3. Transición de Estado: Al confirmar el anclaje en blockchain, el estado 
+   de la elección debe cambiar automáticamente a "PUBLISHED", habilitando 
+   el despliegue operativo del proceso.
+
+---------------------------------------------------------------------------
+FIN DEL BLOQUE 1

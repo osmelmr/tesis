@@ -1,0 +1,63 @@
+================================================================================
+ESTRUCTURA ORGANIZATIVA DE LA TESIS DE GRADO (INGENIERÍA DE SOFTWARE)
+PROYECTO: SISTEMA DE VOTACIÓN HÍBRIDO (NEXT.JS + NESTJS + ETHEREUM)
+================================================================================
+
+INTRODUCCIÓN
+--------------------------------------------------------------------------------
+- Situación Problémica: Contexto de las votaciones actuales, riesgos de 
+  centralización y falta de transparencia.
+- Problema Científico: ¿Cómo garantizar integridad, transparencia y unicidad 
+  del voto en procesos electorales institucionales?
+- Objeto de Estudio: Proceso de gestión de elecciones.
+- Campo de Acción: Desarrollo de sistemas web descentralizados.
+- Objetivo General: Desarrollar el sistema propuesto.
+- Objetivos Específicos: Investigar, diseñar, implementar y validar.
+- Justificación / Novedad: Valor de Blockchain y Merkle Trees frente a CRUDs.
+
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+--------------------------------------------------------------------------------
+1.1 Análisis del Proceso de Negocio: Roles y flujos en una votación real.
+1.2 Conceptos Clave: Blockchain, Ethereum, Smart Contracts, Hashes y Merkle Trees.
+1.3 Estudio de Sistemas Homólogos: Tabla comparativa (Snapshot, Aragon, etc.).
+1.4 Entorno Tecnológico: Justificación de NestJS, Next.js y Solidity.
+1.5 Metodología de Desarrollo: Scrum (Sprints, Roles y Artefactos adaptados).
+
+CAPÍTULO 2: ANÁLISIS Y DISEÑO DEL SISTEMA
+--------------------------------------------------------------------------------
+2.1 Captura de Requisitos: Requisitos Funcionales (ERS) y No Funcionales.
+2.2 Historias de Usuario y Product Backlog: Listado priorizado y estimaciones.
+2.3 Arquitectura del Sistema: Diagrama general del modelo híbrido (Web2 vs Web3).
+2.4 Diseño de la Base de Datos (Web2): DER (Users, Elections, Candidates, Whitelist).
+2.5 Diseño del Smart Contract (Web3): Variables, funciones y Cuádruple Candado.
+
+CAPÍTULO 3: IMPLEMENTACIÓN DEL SISTEMA
+--------------------------------------------------------------------------------
+3.1 Entorno de Desarrollo: Herramientas (Node.js, Hardhat/Foundry, PostgreSQL).
+3.2 Arquitectura del Proyecto: Organización del código y comunicación de módulos.
+3.3 Implementación del Backend (NestJS): Lógica de Merkle Roots y firma ECDSA.
+3.4 Implementación del Smart Contract (Solidity): Modificadores y eficiencia.
+3.5 Implementación del Frontend (Next.js): Integración con Web3 Providers.
+
+CAPÍTULO 4: PRUEBAS DE SOFTWARE
+--------------------------------------------------------------------------------
+4.1 Estrategia de Pruebas: Frameworks (Jest, Chai/Mocha).
+4.2 Pruebas Unitarias:
+    - Contrato: Reverts ante votos duplicados o firmas inválidas.
+    - Backend: Validación de lógica de negocio y generación de pruebas.
+4.3 Pruebas de Integración: Flujo E2E desde solicitud de ticket hasta el minado.
+
+CAPÍTULO 5: ANÁLISIS DE SEGURIDAD Y VIABILIDAD
+--------------------------------------------------------------------------------
+5.1 Auditoría de Seguridad del SC: Prevención de Reentrancy y Timestamp Dependence.
+5.2 Análisis de Costos (Gas Profiling): Costo de despliegue y emisión de votos.
+5.3 Viabilidad del Sistema: Evaluación de Mainnet vs Capas 2 (L2).
+
+CONCLUSIONES Y RECOMENDACIONES
+--------------------------------------------------------------------------------
+- Conclusiones: Logros basados en objetivos específicos.
+- Recomendaciones: Futuras líneas (ej. Zero-Knowledge Proofs).
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================

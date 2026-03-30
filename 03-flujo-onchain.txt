@@ -1,0 +1,100 @@
+================================================================================
+ESPECIFICACIÓN TÉCNICA: FLUJO DE EJECUCIÓN ON-CHAIN (SMART CONTRACT)
+================================================================================
+
+DESCRIPCIÓN GENERAL:
+El Smart Contract actúa como el "Motor de Consenso y Validación" del sistema. 
+No posee lógica de negocio compleja (como autenticación con contraseñas), sino 
+que funciona como un autómata de estado finito que ejecuta transacciones 
+atómicas (todo o nada) basándose en pruebas criptográficas.
+
+A continuación se detalla el ciclo de vida de los datos dentro del contrato.
+
+--------------------------------------------------------------------------------
+TRANSACCIÓN 1: CREACIÓN DE LA ELECCIÓN (WRITE OPERATION)
+Origen: Backend (Administrador) -> Destino: Smart Contract
+--------------------------------------------------------------------------------
+1. ENTRADA DE DATOS (Payload):
+   El contrato recibe una transacción invocando la función `createElection` 
+   con los siguientes parámetros:
+   - `election_id` (Identificador único).
+   - `election_hash` (Hash de Integridad de la elección).
+   - `merkle_root` (El sello matemático de la Whitelist).
+   - `end_timestamp` (Fecha de cierre en formato Unix).
+
+2. VALIDACIÓN DE ACCESO (Modifier):
+   - El contrato lee el `msg.sender` (la dirección de la wallet que envía la 
+     transacción).
+   - Verifica: `require(msg.sender == adminAddress, "Solo el admin puede crear")`.
+
+3. CAMBIO DE ESTADO (Storage):
+   - El contrato crea un nuevo registro en su memoria persistente:
+     `elections[election_id] = Election({ hash: election_hash, root: merkle_root, ... })`
+   - Inicializa el estado de la elección como `activa = true`.
+
+4. SALIDA (Event Log):
+   - Emite un evento en la Blockchain: `emit ElectionCreated(election_id)`.
+   - La transacción finaliza y se mina en un bloque.
+
+--------------------------------------------------------------------------------
+TRANSACCIÓN 2: EMISIÓN Y VALIDACIÓN DEL VOTO (WRITE OPERATION)
+Origen: Frontend (Usuario) -> Destino: Smart Contract
+--------------------------------------------------------------------------------
+1. ENTRADA DE DATOS (Payload):
+   El contrato recibe la invocación a la función `castVote` con el "Ticket":
+   - `election_id` (A qué elección pertenece el voto).
+   - `candidate_id` (La opción elegida).
+   - `user_hash` (La identidad anonimizada del votante).
+   - `merkle_proof` (Arreglo de hashes para reconstruir la raíz).
+   - `signature` (La firma digital del Backend).
+
+2. EJECUCIÓN DEL CUÁDRUPLE CANDADO ATÓMICO:
+   El contrato ejecuta secuencialmente las reglas. Si una sola falla, la 
+   transacción entera hace "Revert" (se cancela y no guarda nada).
+
+   * Regla Temporal:
+     `require(block.timestamp <= elections[election_id].end_timestamp, "Eleccion cerrada")`
+   
+   * Candado 1 (Firma - ECDSA):
+     El contrato reconstruye el mensaje original y usa `ecrecover` con la 
+     `signature`. 
+     `require(signer == adminAddress, "Firma del backend invalida")`
+
+   * Candado 2 (Whitelist - Merkle Proof):
+     El contrato toma el `user_hash` y la `merkle_proof` e itera aplicando 
+     hashes (Keccak256) hasta obtener una raíz calculada.
+     `require(calculatedRoot == elections[election_id].merkle_root, "No estas en la Whitelist")`
+
+   * Candado 3 y 4 (Prevención de Doble Gasto):
+     El contrato lee su mapa de memoria (Storage):
+     `require(!hasVotedUser[election_id][user_hash], "Usuario ya voto")`
+     `require(!hasVotedWallet[election_id][msg.sender], "Wallet ya utilizada")`
+
+3. CAMBIO DE ESTADO (Storage):
+   Una vez superados todos los candados (la matemática es correcta), el contrato 
+   procede a alterar la memoria de la Blockchain:
+   - Marca al usuario: `hasVotedUser[election_id][user_hash] = true`
+   - Marca la wallet: `hasVotedWallet[election_id][msg.sender] = true`
+   - Suma el voto: `candidateVotes[election_id][candidate_id] += 1`
+
+4. SALIDA (Event Log):
+   - Emite el evento: `emit VoteCast(election_id, user_hash, candidate_id)`.
+   - La transacción se guarda en el bloque. El voto es oficial.
+
+--------------------------------------------------------------------------------
+OPERACIÓN 3: CONSULTA DE RESULTADOS Y AUDITORÍA (READ-ONLY)
+Origen: Cualquier observador (Frontend, Auditor) -> Destino: Smart Contract
+--------------------------------------------------------------------------------
+1. ENTRADA DE DATOS:
+   Llamada a la función `getVotes(election_id, candidate_id)`.
+
+2. COMPORTAMIENTO:
+   - Al ser una función de solo lectura (`view` o `pure` en Solidity), no 
+     genera una transacción ni cuesta Gas (dinero).
+   - El nodo de Ethereum lee directamente el estado actual del `Storage` del 
+     contrato.
+
+3. SALIDA:
+   - Devuelve un número entero (`uint256`) con la sumatoria exacta e 
+     inmutable de los votos para ese candidato.
+================================================================================
