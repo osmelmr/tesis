@@ -1,0 +1,63 @@
+================================================================================
+CAPÍTULO 4: PRUEBAS Y VALIDACIÓN DEL SISTEMA
+SECCIÓN: 4.2 PRUEBAS UNITARIAS
+================================================================================
+
+Las pruebas unitarias se enfocaron en validar de forma aislada la lógica interna 
+de los componentes más sensibles del sistema. Se aplicó una metodología de 
+Pruebas de Caja Blanca, diseñando escenarios para el flujo ideal (Happy Path) 
+y la gestión exhaustiva de excepciones.
+
+--------------------------------------------------------------------------------
+4.2.1 PRUEBAS DEL SMART CONTRACT (ESCENARIOS DE ERROR)
+--------------------------------------------------------------------------------
+
+Utilizando el framework Chai, se desarrollaron scripts para asegurar que el 
+Smart Contract actúe como un filtro infranqueable ante intentos de fraude:
+
+* VALIDACIÓN DE UNICIDAD (DOBLE VOTO): 
+    Se ejecutó un voto exitoso y, acto seguido, se intentó enviar una segunda 
+    transacción con el mismo "user_hash". El contrato emitió un `revert` 
+    exitoso, confirmando que el mapeo de unicidad bloquea el doble gasto.
+* INTEGRIDAD DE LA FIRMA (ECDSA): 
+    Se simuló un ataque alterando un bit del ticket firmado. Al ejecutar 
+    `ecrecover`, el contrato detectó la discrepancia con la dirección del 
+    administrador institucional y denegó el sufragio.
+* PRUEBA DE INCLUSIÓN (MERKLE PROOF): 
+    
+    Se enviaron transacciones con hashes hermanos incorrectos. El contrato 
+    rechazó la entrada, demostrando la imposibilidad de falsificar la 
+    pertenencia a la Whitelist sin el camino matemático exacto hacia la raíz.
+* RESTRICCIÓN DE BILLETERA: 
+    Se validó que una dirección de Ethereum (`msg.sender`) ya utilizada no 
+    pueda ser reutilizada en la misma elección, incluso con un "user_hash" 
+    distinto, reforzando el control de identidad 1:1.
+
+--------------------------------------------------------------------------------
+4.2.2 PRUEBAS DEL BACKEND (INTEGRIDAD Y ALGORITMOS)
+--------------------------------------------------------------------------------
+
+En NestJS con Jest, las pruebas se centraron en la pureza de las 
+transformaciones criptográficas y la consistencia de los datos en PostgreSQL:
+
+* DETERMINISMO DEL HASHING: 
+    Se verificó que el algoritmo de anonimización (Keccak-256 + Salt) sea 
+    determinista. La prueba aseguró que, para un mismo usuario y elección, 
+    el backend genere siempre el mismo "user_hash".
+* CONSISTENCIA DEL ÁRBOL DE MERKLE: 
+    
+    Se testeó el `MerkleService` con conjuntos de 10 a 10,000 usuarios. Se 
+    validó que la `merkle_root` fuera siempre un hash de 32 bytes y que las 
+    pruebas individuales fueran verificables contra dicha raíz.
+* VALIDACIÓN DE DTOS Y TIPADO: 
+    Los controladores rechazaron entradas malformadas (IDs inexistentes o 
+    fechas inválidas) mediante `Validation Pipes` antes de procesar cualquier 
+    lógica sensible.
+* PERSISTENCIA DE LA WHITELIST: 
+    Se comprobó que la migración de usuarios hacia la tabla `whitelist` 
+    mantuviera la integridad referencial y que el estado inicial 
+    `has_voted = false` se aplicara estrictamente.
+
+================================================================================
+FIN DEL APARTADO 4.2
+================================================================================

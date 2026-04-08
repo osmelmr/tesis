@@ -1,0 +1,85 @@
+================================================================================
+CAPÍTULO 2: ANÁLISIS Y DISEÑO DEL SISTEMA
+SECCIÓN: 2.5 DISEÑO DEL SMART CONTRACT (WEB3)
+================================================================================
+
+El Smart Contract constituye el núcleo de confianza del sistema, funcionando 
+como un autómata de estado finito que ejecuta la lógica de negocio de manera 
+descentralizada e inmutable dentro de la Ethereum Virtual Machine (EVM).
+
+--------------------------------------------------------------------------------
+2.5.1 ESTRUCTURAS DE DATOS Y PERSISTENCIA (STORAGE)
+--------------------------------------------------------------------------------
+
+El diseño del almacenamiento se ha optimizado para minimizar el consumo de gas 
+y maximizar la integridad referencial mediante las siguientes estructuras:
+
+* ENTIDAD ELECTION (STRUCT): 
+    Encapsula el estado vital de cada proceso electoral:
+    - integrityHash: Huella digital (Keccak-256) de los metadatos y candidatos.
+    - merkleRoot: Raíz del árbol que sella criptográficamente el censo.
+    - endTimestamp: Límite temporal estricto para la admisión de votos.
+
+* CONTROL DE UNICIDAD (MAPPING): 
+    Se implementa la estructura `mapping(uint256 => mapping(bytes32 => bool)) 
+    hasVoted`. Esta configuración gestiona múltiples elecciones simultáneas, 
+    garantizando que un "user_hash" anonimizado solo pueda marcarse como 
+    "voto emitido" una única vez por elección.
+
+--------------------------------------------------------------------------------
+2.5.2 EL PROTOCOLO DE VALIDACIÓN: "EL CUÁDRUPLE CANDADO DE SEGURIDAD"
+--------------------------------------------------------------------------------
+
+La función principal `castVote` actúa como una barrera criptográfica atómica. 
+Para que un voto sea persistido, debe superar cuatro validaciones; si una sola 
+falla, se ejecuta un `revert()` total.
+
+1. AUTORIZACIÓN DE ORIGEN (FIRMA ECDSA): 
+   El contrato utiliza el algoritmo de firma digital de curva elíptica para 
+   verificar el "ticket" generado por el backend. Mediante `ecrecover`, se 
+   valida la clave pública institucional, asegurando que solo actores 
+   autorizados interactúen con el contrato.
+
+2. INTEGRIDAD DE LA ELECCIÓN (INTEGRITY HASH): 
+   Se realiza una comparación de igualdad entre el hash enviado y el 
+   almacenado on-chain. Esto impide ataques que intenten modificar la lista 
+   de candidatos o extender plazos de forma fraudulenta.
+
+3. INCLUSIÓN EN EL CENSO (MERKLE PROOF): 
+   Pilar de la privacidad. El contrato reconstruye la ruta criptográfica 
+   desde el "user_hash" hasta la "merkleRoot". Si es exitosa, demuestra 
+   matemáticamente la pertenencia a la Whitelist sin revelar la identidad 
+   del votante en la Blockchain.
+
+4. PREVENCIÓN DE DOBLE GASTO (UNICIDAD CONTEXTUAL): 
+   Verificación del estado en el mapa `hasVoted`. Al ser una validación 
+   on-chain, es imposible de eludir mediante ataques de repetición, 
+   asegurando la regla de "un hombre, un voto".
+
+--------------------------------------------------------------------------------
+2.5.3 INTERFAZ DE AUDITORÍA Y VERIFICABILIDAD MATEMÁTICA
+--------------------------------------------------------------------------------
+
+El modelo de confianza se sustenta en la Verificabilidad Extremo-a-Extremo (E2E) 
+mediante dos niveles de auditoría:
+
+* AUDITORÍA INDIVIDUAL: 
+    El elector, poseedor del "tx_hash", puede verificar en cualquier 
+    explorador de bloques que su voto fue incluido correctamente 
+    ("Cast-as-intended").
+
+* AUDITORÍA UNIVERSAL: 
+    Cualquier observador puede descargar la Whitelist de la Web2, recalcular 
+    el Árbol de Merkle y constatar que la raíz coincide con la anclada en el 
+    Smart Contract.
+
+La validez del escrutinio se blinda mediante una triangulación de consistencia:
+$$V_{total} = \sum(C_i) = T_{blockchain} = U_{whitelist}$$
+
+Donde la suma de votos por candidato ($C_i$) debe ser estrictamente igual al 
+total de transacciones minadas ($T$) y al total de usuarios habilitados ($U$) 
+que ejercieron su derecho.
+
+================================================================================
+FIN DEL APARTADO 2.5
+================================================================================

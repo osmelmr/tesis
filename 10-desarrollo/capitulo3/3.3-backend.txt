@@ -1,0 +1,72 @@
+================================================================================
+CAPÍTULO 3: IMPLEMENTACIÓN DEL SISTEMA
+SECCIÓN: 3.3 IMPLEMENTACIÓN DEL BACKEND (NESTJS)
+================================================================================
+
+La implementación del lado del servidor constituye el motor lógico y el 
+orquestador de confianza del modelo híbrido. Desarrollado sobre NestJS, el 
+backend actúa como una Autoridad de Certificación criptográfica que prepara, 
+sella y valida los datos antes de su interacción con la red Web3.
+
+--------------------------------------------------------------------------------
+3.3.1 ESTRUCTURA MODULAR Y PERSISTENCIA (WEB2)
+--------------------------------------------------------------------------------
+
+La arquitectura interna se diseñó bajo un enfoque modular, separando las 
+responsabilidades de administración, control de acceso y comunicación con la 
+Blockchain. La capa de persistencia se empleó mediante PostgreSQL y un ORM.
+
+A. ORGANIZACIÓN POR MÓDULOS FUNCIONALES:
+* AUTH MODULE: Administra la seguridad de la API mediante Passport.js y JWT. 
+    Asegura que solo el electorado matriculado acceda a los recursos.
+* ELECTIONS & CANDIDATES MODULE: Gestionan el ciclo de vida (DRAFT a 
+    PUBLISHED). Asigna a cada opción un "candidate_number" consecutivo para 
+    prevenir duplicidad de índices en el Smart Contract.
+* WHITELIST & USERS MODULE: Controla el censo. Aplica Keccak-256 sobre el 
+    "user_id" para generar un "user_hash", garantizando la privacidad.
+
+B. DISEÑO RELACIONAL Y CONTROL DE ESTADO:
+El esquema de PostgreSQL se articula en torno a cuatro entidades críticas:
+1. USERS: Identidad real (nombre, email, credenciales) del censo institucional.
+2. ELECTIONS: Metadatos, fechas y los atributos "merkle_root", 
+   "integrity_hash" y el "blockchain_id" devuelto por el Smart Contract.
+3. CANDIDATES: Relaciona las opciones de sufragio con su elección mediante 
+   llaves foráneas, garantizando coherencia en la boleta.
+4. WHITELIST: Puente de seguridad. Relaciona "election_id" con "user_id" y 
+   "user_hash". Incluye los campos "has_voted" y "tx_hash" para auditoría.
+
+--------------------------------------------------------------------------------
+3.3.2 LÓGICA CRIPTOGRÁFICA Y GENERACIÓN DE TICKETS
+--------------------------------------------------------------------------------
+
+El backend procesa estructuras masivas (Off-chain) y las transforma en pruebas 
+matemáticas ligeras (On-chain) para habilitar el "Cuádruple Candado".
+
+A. ANCLAJE CRIPTOGRÁFICO (FASE DE SELLADO):
+Una vez conformada la Whitelist, se procede a sellar el censo:
+* ÁRBOL DE MERKLE: Se extraen los "user_hash" para construir un árbol 
+    jerárquico, obteniendo la "merkle_root" como huella inmutable del censo.
+* HASH DE INTEGRIDAD (Hi): Se aplica SHA-256 concatenando título, fechas, 
+    IDs de candidatos y la raíz de Merkle. Cualquier modificación posterior 
+    invalidará este hash, impidiendo la inyección de candidatos.
+
+B. EMISIÓN DEL TICKET Y FIRMA ECDSA (AUTORIZACIÓN):
+Antes de autorizar la transacción hacia Ethereum, se ejecuta este protocolo:
+1. VERIFICACIÓN PREVENTIVA: Se confirma en la tabla Whitelist que el usuario 
+   pertenece al proceso y su estado "has_voted" es estrictamente falso.
+2. EXTRACCIÓN DE LA PRUEBA: Se calculan los nodos hermanos ("merkle_proof") 
+   necesarios para que el Smart Contract verifique la inclusión del usuario.
+3. FIRMA DIGITAL: Se ensambla un Payload (ID elección, candidato, wallet, 
+   hash usuario y proof) y se firma con la clave privada institucional del 
+   servidor (ECDSA), constituyendo la autorización de origen.
+
+C. SINCRONIZACIÓN Y CIERRE DE CICLO:
+Para mantener la consistencia, el backend implementa una clausura post-voto:
+* Tras la confirmación del minado, el backend actualiza la base de datos 
+    marcando "has_voted = true" y almacena el "tx_hash". 
+* Este diseño permite una trazabilidad de auditoría impecable y verificaciones 
+    cruzadas sin comprometer el secreto del voto en la Blockchain.
+
+================================================================================
+FIN DEL APARTADO 3.3
+================================================================================

@@ -1,0 +1,14 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.5.1 OBJETIVO GENERAL
+================================================================================
+
+Desarrollar un sistema de votación electrónica híbrido mediante la integración 
+de arquitecturas web convencionales (Next.js/NestJS) y la tecnología Blockchain 
+(Ethereum/Solidity), que garantice la integridad, transparencia y unicidad del 
+sufragio en los procesos electorales de la FEU en la Universidad de las 
+Ciencias Informáticas.
+
+================================================================================
+FIN DEL APARTADO 1.5.1
+================================================================================

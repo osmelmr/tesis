@@ -1,0 +1,76 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.3 ESTUDIO DE SISTEMAS HOMÓLOGOS
+================================================================================
+
+El análisis de soluciones existentes permite identificar las fortalezas y 
+debilidades de los paradigmas actuales en la gobernanza digital y la votación 
+electrónica sobre Blockchain. 
+
+Para esta investigación, se seleccionaron dos referentes globales: Snapshot 
+(enfoque Off-chain) y Aragon (enfoque On-chain).
+
+--------------------------------------------------------------------------------
+1.3.1 SNAPSHOT: EL PARADIGMA DE VOTACIÓN OFF-CHAIN
+--------------------------------------------------------------------------------
+
+Snapshot es una de las plataformas más utilizadas en el ecosistema DeFi. Su 
+funcionamiento se basa en la firma de mensajes fuera de la cadena de bloques.
+
+* VENTAJAS: No genera costos de transacción (Gas) para el usuario y es 
+    altamente escalable.
+* LIMITACIONES: La integridad final depende de un sistema de almacenamiento 
+    externo (IPFS). Al no ejecutarse en la EVM en tiempo real, el conteo final 
+    a menudo requiere ejecución manual, introduciendo un factor de confianza 
+    en los administradores.
+
+--------------------------------------------------------------------------------
+1.3.2 ARAGON: EL PARADIGMA DE GOBERNANZA ON-CHAIN TOTAL
+--------------------------------------------------------------------------------
+
+Aragon es el estándar para Organizaciones Autónomas Descentralizadas (DAOs). 
+Cada acción y voto se registran directamente como una transacción en la red.
+
+* VENTAJAS: Máxima seguridad y resistencia a la censura. El resultado es 
+    vinculante y ejecutable por código de forma inmediata.
+* LIMITACIONES: Los costos de operación (Gas) son extremadamente elevados 
+    para un entorno universitario masivo. Cada voto requiere una transacción 
+    individual, lo que lo hace inviable en la red principal (Mainnet).
+
+--------------------------------------------------------------------------------
+1.3.3 CUADRO COMPARATIVO DE SOLUCIONES
+--------------------------------------------------------------------------------
+
+| CRITERIO DE COMPARACIÓN    | SNAPSHOT (OFF)    | ARAGON (ON)       | TESIS (HÍBRIDA)    |
+|----------------------------|-------------------|-------------------|--------------------|
+| Costo por Voto (Gas)       | Nulo (0)          | Muy Elevado       | Optimizado (L2)    |
+| Integridad del Censo       | Firma Mensajes    | Reg. Contrato     | Raíz de Merkle     |
+| Transparencia              | Media (IPFS)      | Máxima (BC)       | Alta (Dual)        |
+| Inmutabilidad              | Dep. Terceros     | Absoluta          | Inalterable (SC)   |
+| Complejidad de Uso         | Muy Baja          | Alta (Wallet)     | Media (UCI)        |
+
+--------------------------------------------------------------------------------
+1.3.4 JUSTIFICACIÓN DE LA PROPUESTA HÍBRIDA
+--------------------------------------------------------------------------------
+
+La solución desarrollada se posiciona en un punto de equilibrio técnico, 
+utilizando lo mejor de ambos mundos para resolver la problemática institucional:
+
+1. OPTIMIZACIÓN CRIPTOGRÁFICA: 
+   A diferencia de Aragon, nuestra propuesta utiliza Árboles de Merkle. Esto 
+   reduce el almacenamiento on-chain a un único hash (Merkle Root), logrando 
+   escalabilidad para la población de la UCI sin costos prohibitivos.
+
+2. VALIDACIÓN DUAL DE UNICIDAD: 
+   A diferencia de Snapshot, el control de "un voto por usuario" reside en el 
+   Smart Contract. Aunque el Backend fuera atacado, la Blockchain rechazaría 
+   cualquier intento de duplicidad técnica.
+
+3. SOSTENIBILIDAD ECONÓMICA: 
+   El diseño minimiza las escrituras en la EVM y permite la migración a redes 
+   de Capa 2 (L2), logrando un costo operativo significativamente inferior a 
+   las soluciones puramente on-chain, ideal para la FEU.
+
+================================================================================
+FIN DEL APARTADO 1.3
+================================================================================

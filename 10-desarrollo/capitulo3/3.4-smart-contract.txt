@@ -1,0 +1,93 @@
+================================================================================
+CAPÍTULO 3: IMPLEMENTACIÓN DEL SISTEMA
+SECCIÓN: 3.4 IMPLEMENTACIÓN DEL SMART CONTRACT (SOLIDITY)
+================================================================================
+
+La implementación en la capa Web3 se desarrolló utilizando el lenguaje Solidity 
+para su ejecución en la Ethereum Virtual Machine (EVM). El Smart Contract actúa 
+estrictamente como un Motor de Consenso y Validación, funcionando como un 
+autómata de estado finito.
+
+--------------------------------------------------------------------------------
+3.4.1 PERSISTENCIA DE ESTADO Y MAPEOS ESTRUCTURALES (STORAGE)
+--------------------------------------------------------------------------------
+
+El diseño del almacenamiento en la Blockchain se estructuró para garantizar la 
+integridad de las elecciones y prevenir el doble gasto con un costo operativo mínimo.
+
+* ESTRUCTURA BASE (STRUCT ELECTION): 
+    Define el estado inmutable de cada proceso. Al invocarse la función 
+    `createElection`, el contrato almacena:
+    - election_hash: Huella digital ($Hi$) que sella la configuración.
+    - merkle_root: El sello matemático que representa la Whitelist oficial.
+    - end_timestamp: Límite temporal estricto en formato Unix.
+
+* MAPEOS BIDIMENSIONALES (UNICIDAD CONTEXTUAL): 
+    Para permitir que un elector participe en múltiples elecciones 
+    independientes, se empleó un mapeo compuesto: 
+    `mapping(uint256 => mapping(bytes32 => bool)) hasVotedUser`. 
+    Este diseño permite validar en tiempo $O(1)$ si un "user_hash" ya ejerció 
+    su derecho en un "election_id" específico.
+
+--------------------------------------------------------------------------------
+3.4.2 CONTROL DE ESTADO MEDIANTE MODIFICADORES (MODIFIERS)
+--------------------------------------------------------------------------------
+
+Para proteger las funciones críticas, se implementaron modificadores que 
+actúan como barreras de ejecución previas a la lógica principal:
+
+* ONLYADMIN: Garantiza que la apertura del proceso (`createElection`) sea 
+    invocada exclusivamente por la billetera administradora autorizada, 
+    evitando la inyección de elecciones falsas.
+* RESTRICCIONES TEMPORALES: Las funciones de sufragio evalúan directamente 
+    el sello de tiempo del bloque: `require(block.timestamp <= end_timestamp)`. 
+    Esto garantiza la inviolabilidad de los plazos sin intervención manual.
+
+--------------------------------------------------------------------------------
+3.4.3 IMPLEMENTACIÓN DEL "CUÁDRUPLE CANDADO" (TRANSACCIÓN ATÓMICA)
+--------------------------------------------------------------------------------
+
+El núcleo de la seguridad reside en la función `castVote`. La transacción debe 
+superar secuencialmente cuatro validaciones; si una falla, el contrato ejecuta 
+un `revert()` total.
+
+
+
+1. CANDADO 1: AUTORIZACIÓN DE ORIGEN (FIRMA ECDSA): 
+   El contrato aplica `ecrecover` sobre el ticket digital del usuario. Se 
+   verifica que la firma corresponda a la Clave Privada del backend oficial, 
+   bloqueando interacciones directas no autorizadas.
+
+2. CANDADO 2: INTEGRIDAD DE ESTRUCTURA (ELECTION HASHING): 
+   Se valida que el hash enviado en el ticket coincida con el `election_hash` 
+   almacenado. Asegura que ningún actor haya alterado candidatos o reglas.
+
+3. CANDADO 3: PERTENENCIA A LA WHITELIST (MERKLE PROOF): 
+   El contrato procesa el "user_hash" junto con el arreglo `merkle_proof`. 
+   Mediante iteraciones de Keccak-256, reconstruye la raíz y exige que 
+   coincida con la `merkleRoot` anclada, validando al votante con privacidad.
+
+4. CANDADO 4: UNICIDAD DUAL (DOBLE GASTO): 
+   Exige que tanto el "user_hash" como el "msg.sender" (Wallet) estén marcados 
+   como falso en los mapeos. Tras el éxito, ambos cambian atómicamente a true.
+
+--------------------------------------------------------------------------------
+3.4.4 OPTIMIZACIÓN PARA EFICIENCIA DE GAS
+--------------------------------------------------------------------------------
+
+Para reducir el costo computacional en la EVM, se aplicaron técnicas avanzadas:
+
+* USO DE CALLDATA: Los parámetros de solo lectura (como `merkle_proof`) se 
+    declararon como `calldata` en lugar de `memory`, evitando clonaciones 
+    costosas en la RAM de la EVM.
+* EMPAQUETADO DE VARIABLES (VARIABLE PACKING): Los campos del `struct Election` 
+    fueron ordenados por tamaño de bytes para agrupar variables en un mismo 
+    slot de almacenamiento (32 bytes), reduciendo costos de escritura (`SSTORE`).
+* ARQUITECTURA DE FALLA RÁPIDA (FAIL-FAST): Las sentencias `require` se 
+    ordenaron priorizando validaciones de bajo costo (booleanos y tiempos) 
+    al inicio, revirtiendo transacciones inválidas antes de ejecutar 
+    operaciones criptográficas costosas.
+
+================================================================================
+FIN DEL APARTADO 3.4
+================================================================================

@@ -1,0 +1,71 @@
+================================================================================
+CAPÍTULO 3: IMPLEMENTACIÓN DEL SISTEMA
+SECCIÓN: 3.5 IMPLEMENTACIÓN DEL FRONTEND (NEXT.JS)
+================================================================================
+
+La capa de presentación y orquestación del cliente se desarrolló utilizando 
+Next.js, un framework de React que permite una optimización avanzada del 
+renderizado y una gestión eficiente del enrutamiento. 
+
+En esta arquitectura híbrida, el frontend actúa como el puente interactivo 
+entre la identidad institucional (Web2) y la billetera digital (Web3), 
+gestionando la asincronía y reactividad de ambos entornos.
+
+--------------------------------------------------------------------------------
+3.5.1 GESTIÓN DE LA REACTIVIDAD PARA DATOS HÍBRIDOS
+--------------------------------------------------------------------------------
+
+El principal desafío arquitectónico del cliente es la concurrencia de dos 
+fuentes de verdad distintas. Se implementó un patrón de gestión de estado dual:
+
+* ESTADO WEB2 (DATOS RELACIONALES): 
+    Mediante herramientas de obtención de datos (React Query/SWR), el frontend 
+    consume desde NestJS los metadatos (título, fechas, candidatos) y el 
+    estado de la sesión (JWT). Estos datos determinan la visibilidad de la 
+    boleta basándose en la pertenencia a la Whitelist.
+* ESTADO WEB3 (DATOS DE CONSENSO): 
+    La aplicación reacciona en tiempo real al estado de la red Ethereum. Se 
+    emplean hooks personalizados para suscribirse a eventos del Smart 
+    Contract, permitiendo reflejar el conteo de votos públicos y confirmaciones 
+    de red sin saturar al servidor central.
+
+--------------------------------------------------------------------------------
+3.5.2 INTEGRACIÓN CON WEB3 PROVIDERS (METAMASK)
+--------------------------------------------------------------------------------
+
+Para la interacción con la Blockchain, se integró un proveedor Web3 a través 
+del estándar `window.ethereum`, abstraído mediante la librería `ethers.js`:
+
+* DETECCIÓN E INYECCIÓN: El sistema verifica la presencia de extensiones de 
+    billetera compatibles. En su ausencia, provee un flujo de degradación 
+    instruyendo al usuario sobre su instalación.
+* VALIDACIÓN DE RED (CHAIN ID): El frontend verifica matemáticamente que la 
+    billetera esté conectada a la red correcta (ej. Sepolia Testnet). Si 
+    detecta un entorno erróneo, dispara una solicitud de cambio de red 
+    (`wallet_switchEthereumChain`).
+* FIRMA DE TRANSACCIONES: El frontend delega a MetaMask la solicitud de firma 
+    criptográfica. El sistema nunca maneja claves privadas, garantizando la 
+    seguridad absoluta en el lado del cliente.
+
+--------------------------------------------------------------------------------
+3.5.3 ORQUESTACIÓN DEL FLUJO DE VOTACIÓN EN EL CLIENTE
+--------------------------------------------------------------------------------
+
+La emisión del voto orquesta un flujo en tres fases asíncronas para garantizar 
+la ejecución del "Cuádruple Candado":
+
+1. FASE DE PREPARACIÓN (FETCH TICKET): 
+   Al seleccionar un candidato, el frontend solicita al backend el Payload que 
+   incluye la `merkle_proof` y la firma ECDSA del servidor institucional.
+2. FASE DE EJECUCIÓN (SMART CONTRACT): 
+   Next.js instancia el contrato mediante su ABI e invoca `castVote`. Se pasan 
+   los parámetros (ID elección, ID candidato, hash usuario, proof y firma), 
+   desplegando la interfaz de MetaMask para la aprobación del Gas.
+3. FASE DE CLAUSURA (SINCRONIZACIÓN OFF-CHAIN): 
+   Tras el minado exitoso (`receipt.status == 1`), el cliente extrae el 
+   "tx_hash" y lo remite a NestJS. El backend actualiza el registro local 
+   (`has_voted = true`), cerrando el ciclo de auditoría híbrida.
+
+================================================================================
+FIN DEL APARTADO 3.5
+================================================================================

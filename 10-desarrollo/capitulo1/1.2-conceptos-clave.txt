@@ -1,0 +1,70 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.2 CONCEPTOS CLAVE
+================================================================================
+
+Para comprender la arquitectura del sistema de votación propuesto, es 
+imprescindible fundamentar los pilares tecnológicos que garantizan la 
+descentralización y la seguridad criptográfica.
+
+--------------------------------------------------------------------------------
+1.2.1 BLOCKCHAIN Y ETHEREUM: LA RED DISTRIBUIDA
+--------------------------------------------------------------------------------
+
+La Blockchain se define como un libro de contabilidad digital, descentralizado 
+e inmutable, donde las transacciones se agrupan en bloques vinculados 
+criptográficamente.
+
+* FUNCIONAMIENTO DE NODOS: 
+    Cada nodo en la red Ethereum mantiene una copia exacta del estado del 
+    sistema. Para que un voto sea válido, debe ser propagado y verificado por 
+    estos nodos mediante un mecanismo de consenso.
+    - Resiliencia: Elimina el "Punto Único de Falla". Si el servidor central 
+      falla, los registros permanecen intactos en la red global.
+
+* TRANSPARENCIA RADICAL: 
+    Permite una auditoría pública sin precedentes, donde cualquier actor puede 
+    consultar el historial de transacciones de la elección.
+
+--------------------------------------------------------------------------------
+1.2.2 SMART CONTRACTS: AUTÓMATAS DE ESTADO FINITO
+--------------------------------------------------------------------------------
+
+Un Smart Contract es un programa informático que se ejecuta de forma autónoma y 
+determinística sobre la Blockchain, funcionando como un Autómata de Estado 
+Finito (FSM).
+
+* LÓGICA AUTÓMATA: 
+    El contrato transita por estados estrictos (ej. Creada, Activa, Finalizada). 
+    Las funciones de votación solo son accesibles si el estado actual lo permite.
+
+* EJECUCIÓN DETERMINISTA: 
+    Al residir en la EVM (Ethereum Virtual Machine), se garantiza que ante los 
+    mismos datos de entrada, el resultado será siempre idéntico en todos los 
+    nodos, eliminando la interpretación humana o manipulación administrativa.
+
+--------------------------------------------------------------------------------
+1.2.3 FUNCIONES HASH Y ÁRBOLES DE MERKLE
+--------------------------------------------------------------------------------
+
+La integridad del sistema descansa sobre la matemática de las funciones de 
+resumen (Hashes), específicamente algoritmos como SHA-256 o Keccak-256.
+
+* ÁRBOLES DE MERKLE: 
+    Estructura de datos donde cada hoja es el hash de un identificador 
+    anonimizado (user_hash) y cada nodo interno es el hash de sus hijos.
+
+* LA RAÍZ DE MERKLE (MERKLE ROOT): 
+    Es el hash final en la cima del árbol que representa la totalidad del 
+    censo. Esta raíz actúa como el "sello" de integridad almacenado on-chain.
+
+* PRUEBA DE INCLUSIÓN (MERKLE PROOF): 
+    Permite que un usuario demuestre su pertenencia a la Whitelist enviando 
+    solo un conjunto reducido de hashes (el camino hacia la raíz).
+    - Privacidad: La Blockchain no requiere conocer la lista completa de nombres.
+    - Eficiencia: El costo de gas es bajo y constante, independientemente del 
+      volumen de votantes (escalabilidad O(log n)).
+
+================================================================================
+FIN DEL APARTADO 1.2
+================================================================================

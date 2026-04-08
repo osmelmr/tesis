@@ -1,0 +1,68 @@
+================================================================================
+CAPÍTULO 2: ANÁLISIS Y DISEÑO DEL SISTEMA
+SECCIÓN: 2.1 CAPTURA DE REQUISITOS
+================================================================================
+
+La captura de requisitos constituye la fase de ingeniería donde se identifican, 
+analizan y documentan las necesidades del proceso electoral de la FEU para 
+traducirlas en especificaciones técnicas. Esta etapa es crítica para asegurar 
+la integridad de la arquitectura híbrida propuesta.
+
+--------------------------------------------------------------------------------
+2.1.1 REQUISITOS FUNCIONALES (RF)
+--------------------------------------------------------------------------------
+
+Los requisitos funcionales describen las acciones específicas que el sistema 
+debe ejecutar, divididos según los roles principales:
+
+* RF-01 GESTIÓN DE ELECCIONES (ADMIN): 
+    Permitir al administrador crear, configurar y parametrizar eventos 
+    electorales (títulos, descripciones y marcos temporales).
+* RF-02 GESTIÓN DE CANDIDATOS: 
+    Permitir el registro de candidatos asociados a una elección específica, 
+    incluyendo datos identificativos y posición en la boleta digital.
+* RF-03 GESTIÓN DE LA WHITELIST (CENSO): 
+    Permitir la carga masiva de usuarios autorizados, generando de forma 
+    automática los hashes anonimizados y la Raíz de Merkle para el sellado.
+* RF-04 VERIFICACIÓN DE ELEGIBILIDAD: 
+    Validar que el usuario autenticado pertenece al censo mediante la 
+    comprobación de una Merkle Proof antes de permitir la emisión del voto.
+* RF-05 EMISIÓN Y REGISTRO DEL VOTO: 
+    Permitir al elector seleccionar un candidato y registrar su intención de 
+    voto de forma inmutable en la Blockchain de Ethereum.
+* RF-06 CONTROL DE UNICIDAD: 
+    Impedir técnicamente que un mismo usuario emita más de un voto en una 
+    misma elección (prevención de doble gasto).
+* RF-07 VISUALIZACIÓN DE RESULTADOS: 
+    Mostrar el escrutinio consultando directamente el estado del Smart Contract 
+    (tiempo real o diferido).
+
+--------------------------------------------------------------------------------
+2.1.2 REQUISITOS NO FUNCIONALES (RNF)
+--------------------------------------------------------------------------------
+
+Los requisitos no funcionales definen las cualidades y restricciones que 
+garantizan el rigor científico de la solución:
+
+* RNF-01 SEGURIDAD (CRIPTOGRAFÍA): 
+    Empleo de algoritmos ECDSA para firmas y SHA-256/Keccak-256 para hashing, 
+    asegurando resistencia a manipulaciones.
+* RNF-02 INTEGRIDAD DE LOS DATOS (INMUTABILIDAD): 
+    Garantizar que una vez confirmado el voto en la red descentralizada, sea 
+    imposible su modificación o borrado, incluso para el administrador.
+* RNF-03 DISPONIBILIDAD: 
+    Interfaz accesible 24/7. En caso de fallo del backend Web2, los registros 
+    en la Blockchain deben permanecer consultables vía explorador de bloques.
+* RNF-04 TRANSPARENCIA Y AUDITABILIDAD: 
+    Permitir la verificación de la autenticidad del voto mediante el hash de 
+    transacción, manteniendo el anonimato del votante.
+* RNF-05 INTEROPERABILIDAD: 
+    Capacidad de interactuar con Web3 Providers (MetaMask) y comunicarse 
+    eficientemente con la red Ethereum a través de nodos RPC.
+* RNF-06 USABILIDAD: 
+    Interfaz (Frontend) intuitiva y responsive para asegurar el ejercicio del 
+    voto sin fricciones técnicas para usuarios no expertos.
+
+================================================================================
+FIN DEL APARTADO 2.1
+================================================================================

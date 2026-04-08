@@ -1,0 +1,74 @@
+================================================================================
+CAPÍTULO 4: PRUEBAS Y VALIDACIÓN DEL SISTEMA
+SECCIÓN: 4.3 PRUEBAS DE INTEGRACIÓN (VALIDACIÓN E2E)
+================================================================================
+
+Las pruebas de integración validaron el flujo de extremo a extremo (End-to-End), 
+asegurando que la interoperabilidad entre el frontend, el backend y la red 
+Blockchain se mantenga íntegra bajo condiciones de uso real. 
+
+Se verificó que el "paso de estafeta" entre la identidad legal y el registro 
+inmutable no presente fisuras de seguridad ni pérdida de datos.
+
+--------------------------------------------------------------------------------
+4.3.1 FLUJO COMPLETO DE EMISIÓN DE SUFRAGIO
+--------------------------------------------------------------------------------
+
+Se diseñó una batería de pruebas automatizadas que simulan el recorrido de un 
+elector, validando los siguientes hitos críticos:
+
+
+
+* AUTENTICACIÓN E IDENTIFICACIÓN (WEB2): 
+    Validación de que, tras el login, el sistema transforme el "user_id" en 
+    el "user_hash" correspondiente a la Whitelist. Se confirmó que el JWT 
+    emitido contiene los permisos para solicitar un ticket de votación.
+* GENERACIÓN DE LA PRUEBA DE INCLUSIÓN (MERKLE PROOF): 
+    Integración del backend con PostgreSQL para asegurar que, al solicitar un 
+    voto, se reconstruya el árbol de Merkle en memoria y se entregue al 
+    frontend una `merkle_proof` válida.
+* AUTORIZACIÓN MEDIANTE FIRMA INSTITUCIONAL (ECDSA): 
+    Verificación de que el backend firme el ticket con su clave privada. La 
+    prueba confirmó que el objeto recibido por el frontend incluye los 
+    parámetros criptográficos requeridos (`v`, `r`, `s`).
+* FIRMA DEL USUARIO Y ENVÍO (WEB3): 
+    Simulación con Hardhat Network para validar que el frontend ensamble la 
+    transacción de Solidity y que la firma del usuario en la wallet active 
+    la ejecución del "Cuádruple Candado".
+
+--------------------------------------------------------------------------------
+4.3.2 VALIDACIÓN DE LA PERSISTENCIA HÍBRIDA Y AUDITORÍA
+--------------------------------------------------------------------------------
+
+Punto crítico para el modelo de auditoría del sistema:
+
+* CAPTURA DEL TX_HASH: 
+    Se comprobó que, tras el minado del bloque, el frontend capture el 
+    identificador (`tx_hash`) y lo remita exitosamente al backend de NestJS.
+* CIERRE DE CICLO EN BASE DE DATOS: 
+    Validación de que el backend actualice el estado en la tabla `whitelist` 
+    a `has_voted = true`. Esto evita reinicios de flujo si una transacción 
+    ya está en proceso de confirmación.
+* TRIANGULACIÓN DE CONSISTENCIA: 
+    
+    Script de auditoría final que comparó: el conteo en el Smart Contract, 
+    las transacciones en la red y los registros en PostgreSQL. La coincidencia 
+    exacta validó la robustez de la integración.
+
+--------------------------------------------------------------------------------
+4.3.3 MANEJO DE LATENCIA Y FALLOS DE RED
+--------------------------------------------------------------------------------
+
+Pruebas de estrés ante condiciones adversas de conectividad:
+
+* TRANSACCIONES PENDIENTES: 
+    El frontend gestionó correctamente los estados de espera (`isPending`), 
+    evitando clics múltiples o cierres de sesión prematuros durante el minado.
+* REVERSIÓN DE ESTADO: 
+    Se simuló un fallo por gas insuficiente. Se validó que el backend NO 
+    marque al usuario como "votado", permitiéndole reintentar el proceso 
+    una vez normalizada la red.
+
+================================================================================
+FIN DEL APARTADO 4.3
+================================================================================

@@ -1,0 +1,66 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.1 SITUACIÓN PROBLÉMICA
+================================================================================
+
+En la Universidad de las Ciencias Informáticas (UCI), la gestión de los procesos 
+electorales de la Federación Estudiantil Universitaria (FEU) descansa sobre 
+métodos tradicionales que han quedado rezagados ante la transformación digital 
+de la institución. El modelo actual, basado en el uso de boletas físicas y urnas 
+locales, presenta una fractura crítica entre la importancia democrática del 
+evento y la tecnología empleada para resguardarlo.
+
+Esta dependencia de lo analógico y lo presencial genera dos ejes de conflicto 
+que justifican la necesidad de una arquitectura descentralizada:
+
+--------------------------------------------------------------------------------
+1. EL LÍMITE DE LA INFRAESTRUCTURA FÍSICA Y EL ABSENTISMO
+--------------------------------------------------------------------------------
+
+El sistema de votación actual impone una barrera de entrada logística. Al 
+requerir que el estudiante se desplace físicamente a un colegio electoral en 
+horarios específicos, el proceso colisiona con la dinámica académica, periodos 
+de práctica externa o situaciones de salud. 
+
+* Fricción de acceso: El requerimiento de presencialidad (filas, traslados 
+    entre facultades) se traduce en un desinterés sistémico.
+* Exclusión: La falta de una alternativa ubicua y digital reduce la 
+    participación y excluye a miembros de la comunidad que no pueden cumplir 
+    con la presencialidad.
+
+--------------------------------------------------------------------------------
+2. LA OBSOLESCENCIA DE LA CONFIANZA CENTRALIZADA FRENTE A LA BLOCKCHAIN
+--------------------------------------------------------------------------------
+
+El problema fundamental no es solo la digitalización, sino el modelo de 
+confianza. Los sistemas digitales convencionales (Web2) o los procesos físicos 
+dependen de una "cadena de custodia humana", donde el estudiante debe confiar 
+ciegamente en que el administrador o el comité de escrutinio no alterará los 
+registros.
+
+* Vulnerabilidad y Opacidad del Escrutinio: 
+    Los métodos físicos dependen de humanos para la recolección y conteo, lo 
+    que introduce riesgos de errores administrativos. La imposibilidad de 
+    realizar una auditoría pública genera una brecha de confianza.
+
+* Inexistencia de Prueba de Integridad: 
+    No existe un mecanismo donde el elector pueda verificar, mediante 
+    matemáticas o criptografía, que el censo no fue inflado o que su voto no 
+    fue duplicado.
+
+--------------------------------------------------------------------------------
+CONCLUSIÓN DE LA PROBLEMÁTICA
+--------------------------------------------------------------------------------
+
+La problemática radica en un sistema que no garantiza la verificabilidad 
+extremo a extremo. La arquitectura propuesta no busca solo "hacer una web para 
+votar", sino sustituir la confianza en personas por la verificación en un 
+libro de contabilidad inmutable. 
+
+Al integrar Smart Contracts y estructuras de datos (Merkle Trees), se garantiza 
+que cada voto sea un activo digital único que, una vez emitido, no pueda ser 
+borrado ni modificado, ni siquiera por los administradores del sistema.
+
+================================================================================
+FIN DEL APARTADO 1.1
+================================================================================

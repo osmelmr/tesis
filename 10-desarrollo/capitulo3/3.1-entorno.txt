@@ -1,0 +1,72 @@
+================================================================================
+CAPÍTULO 3: IMPLEMENTACIÓN DEL SISTEMA
+SECCIÓN: 3.1 ENTORNO DE DESARROLLO
+================================================================================
+
+La implementación del sistema de votación híbrido requirió la configuración de 
+un entorno de desarrollo multi-capa, capaz de compilar lógica de contratos 
+inteligentes y gestionar servicios web de alto rendimiento.
+
+--------------------------------------------------------------------------------
+3.1.1 PLATAFORMAS DE EJECUCIÓN Y LENGUAJES
+--------------------------------------------------------------------------------
+
+Se seleccionaron lenguajes de estándar industrial que garantizan estabilidad y 
+seguridad criptográfica en todo el flujo de trabajo:
+
+* NODE.JS (V20.X+): Entorno de ejecución principal para el backend (NestJS) 
+    y herramientas de automatización de Blockchain. Su motor V8 gestiona de 
+    forma asíncrona las peticiones y comunicaciones con los nodos de la red.
+* TYPESCRIPT (V5.X): Lenguaje principal de la capa de aplicación. Su tipado 
+    estático es fundamental para manipular Merkle Proofs y hashes de 
+    transacciones, evitando errores de tipos en tiempo de ejecución.
+* SOLIDITY (V0.8.20+): Lenguaje para la EVM. Se utilizaron versiones con 
+    verificaciones nativas contra desbordamiento de enteros (overflow), 
+    aumentando la seguridad del contrato sin dependencias externas.
+
+--------------------------------------------------------------------------------
+3.1.2 FRAMEWORKS DE DESARROLLO Y ORQUESTACIÓN
+--------------------------------------------------------------------------------
+
+* NESTJS: Framework de backend bajo arquitectura modular, permitiendo separar 
+    el módulo de elecciones del componente criptográfico especializado.
+* HARDHAT / FOUNDRY: Entornos de desarrollo para Smart Contracts. 
+    - Hardhat: Gestión de despliegues y scripts de integración JavaScript.
+    - Foundry: Ejecución de pruebas unitarias de alta velocidad y fuzzing 
+      directamente en Solidity.
+* NEXT.JS: Framework de frontend para la interfaz de usuario, optimizando el 
+    renderizado y las rutas para dispositivos móviles y de escritorio.
+
+--------------------------------------------------------------------------------
+3.1.3 PERSISTENCIA Y GESTIÓN DE DATOS
+--------------------------------------------------------------------------------
+
+* POSTGRESQL: Sistema relacional para la capa Web2, encargado de la integridad 
+    referencial del censo y los metadatos electorales.
+* PRISMA / TYPEORM: Mapeadores objeto-relacional (ORM) que abstraen las 
+    consultas SQL, protegiendo al sistema contra ataques de inyección y 
+    facilitando las migraciones del esquema de datos.
+
+--------------------------------------------------------------------------------
+3.1.4 HERRAMIENTAS DE CRIPTOGRAFÍA Y CONECTIVIDAD WEB3
+--------------------------------------------------------------------------------
+
+* OPENZEPPELIN CONTRACTS: Librería de estándares de seguridad. Se emplearon 
+    implementaciones de `AccessControl` y utilitarios criptográficos probados.
+* ETHERS.JS / VIEM: Librerías cliente para la interacción con Ethereum, 
+    permitiendo que el backend firme mensajes y el frontend conecte con MetaMask.
+* MERKLETREEJS: Librería especializada en Node.js para la construcción y 
+    manipulación eficiente de Árboles de Merkle y generación de pruebas.
+
+--------------------------------------------------------------------------------
+3.1.5 INFRAESTRUCTURA DE RED Y PRUEBAS
+--------------------------------------------------------------------------------
+
+* ANVIL / HARDHAT NETWORK: Nodos locales que simulan una cadena de bloques 
+    en memoria, permitiendo la depuración instantánea y sin costo de gas real.
+* METAMASK: Extensión de navegador utilizada como proveedor de identidad Web3 
+    y firmante (Signer) para las pruebas de integración del lado del cliente.
+
+================================================================================
+FIN DEL APARTADO 3.1
+================================================================================

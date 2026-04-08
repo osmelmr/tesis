@@ -1,0 +1,78 @@
+================================================================================
+CAPÍTULO 5: ANÁLISIS DE SEGURIDAD Y RESULTADOS
+SECCIÓN: 5.1 AUDITORÍA DE SEGURIDAD DEL SMART CONTRACT
+================================================================================
+
+Dado que el código desplegado en la Ethereum Virtual Machine (EVM) es inmutable 
+y público, el Smart Contract fue sometido a una rigurosa auditoría de seguridad 
+estática y dinámica. 
+
+El objetivo principal fue certificar que el "Motor de Consenso" es resiliente 
+ante vectores de ataque conocidos y que la administración sigue el Principio 
+de Menor Privilegio.
+
+--------------------------------------------------------------------------------
+5.1.1 MITIGACIÓN DE ATAQUES DE REENTRADA (REENTRANCY)
+--------------------------------------------------------------------------------
+
+La Reentrada permite que un contrato malicioso intercepte una ejecución y 
+vuelva a llamar a la función original antes de actualizar el estado. Para 
+erradicar este riesgo, se implementaron dos capas defensivas:
+
+* PATRÓN CHECKS-EFFECTS-INTERACTIONS (CEI): 
+    La función `castVote` sigue estrictamente este orden:
+    1. CHECKS (COMPROBACIONES): Validación del "Cuádruple Candado" (Firma, 
+       Whitelist, Tiempos y Unicidad).
+    2. EFFECTS (EFECTOS): Alteración inmediata del estado interno marcando 
+       `hasVotedUser = true` e incrementando el contador del candidato.
+    3. INTERACTIONS (INTERACCIONES): Emisión de eventos (`emit VoteCast`). 
+       Al no existir llamadas a contratos externos, se elimina la superficie 
+       de ataque.
+
+
+
+* USO DE REENTRANCYGUARD: 
+    Se heredó el modificador `nonReentrant` de OpenZeppelin. Este actúa como 
+    un bloqueo de exclusión mutua (Mutex) a nivel de la EVM, garantizando que 
+    la función de votación no sea invocada de forma anidada.
+
+--------------------------------------------------------------------------------
+5.1.2 GESTIÓN DE PERMISOS Y CONTROL DE ACCESO
+--------------------------------------------------------------------------------
+
+La seguridad del sistema híbrido depende de que las configuraciones iniciales 
+provengan de una fuente confiable, evitando la toma de control (Takeover):
+
+* ARQUITECTURA DE ROLES (ACCESSCONTROL): 
+    Se utilizó la librería `AccessControl` de OpenZeppelin para definir el 
+    rol `ADMIN_ROLE`, asignado exclusivamente a la dirección de la billetera 
+    institucional controlada por el backend (NestJS).
+* AISLAMIENTO DE RESPONSABILIDADES: 
+    La dirección administradora puede crear elecciones y anclar la 
+    `merkle_root`, pero tiene prohibido emitir votos. El contrato disocia 
+    legalmente al creador de la elección de los participantes.
+* INMUTABILIDAD POST-DESPLIEGUE: 
+    Una vez inicializada la elección, ni siquiera el administrador puede 
+    alterar candidatos o fechas. La soberanía matemática se traslada 
+    íntegramente a la Blockchain tras el inicio del proceso.
+
+--------------------------------------------------------------------------------
+5.1.3 RESILIENCIA FRENTE A OTROS VECTORES DE ATAQUE
+--------------------------------------------------------------------------------
+
+* PROTECCIÓN CONTRA DESBORDAMIENTO (OVERFLOW/UNDERFLOW): 
+    Al utilizar Solidity 0.8.0+, el contrato hereda protecciones nativas que 
+    revierten la transacción si los contadores superan los límites 
+    matemáticos, eliminando la necesidad de `SafeMath`.
+* MITIGACIÓN DE DOS POR LÍMITE DE GAS: 
+    El sistema es inmune a ataques DoS sobre el censo porque no itera sobre 
+    arreglos inmensos. La verificación de la Whitelist mediante Merkle Proofs 
+    tiene una complejidad de $O(\log n)$, con un costo de gas constante y bajo.
+* ATAQUES DE INTERCEPTACIÓN (FRONT-RUNNING): 
+    Dado que los votos se basan en un "user_hash" anónimo y no ofrecen 
+    recompensa financiera al minero, el incentivo para reordenar transacciones 
+    (MEV) es nulo, anulando el riesgo de manipulación del bloque.
+
+================================================================================
+FIN DEL APARTADO 5.1
+================================================================================

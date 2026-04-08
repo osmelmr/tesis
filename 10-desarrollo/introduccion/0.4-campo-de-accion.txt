@@ -1,0 +1,41 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.4 CAMPO DE ACCIÓN
+================================================================================
+
+El campo de acción se define específicamente como el desarrollo de sistemas web 
+descentralizados basados en tecnología Blockchain y arquitecturas híbridas.
+
+Esta delimitación técnica se enfoca en la convergencia de soluciones de software 
+modernas para resolver problemas de seguridad y confianza, abarcando los 
+siguientes dominios:
+
+--------------------------------------------------------------------------------
+DOMINIOS TECNOLÓGICOS Y METODOLÓGICOS
+--------------------------------------------------------------------------------
+
+1. ARQUITECTURAS HÍBRIDAS (WEB2 + WEB3):
+   La integración de servicios backend centralizados (NestJS) con redes 
+   distribuidas (Ethereum), gestionando la comunicación asíncrona entre bases 
+   de datos relacionales y el estado de la cadena de bloques (Blockchain).
+
+2. INGENIERÍA DE CONTRATOS INTELIGENTES (SMART CONTRACTS):
+   El diseño, programación y despliegue de lógica de negocio inmutable en la 
+   EVM (Ethereum Virtual Machine). Incluye la creación de funciones de 
+   validación atómica que operan sin intervención humana.
+
+3. CRIPTOGRAFÍA APLICADA A LA INTEGRIDAD:
+   El uso de estructuras de datos avanzadas como los Árboles de Merkle para la 
+   compresión y verificación de censos masivos, y el empleo de firmas 
+   digitales basadas en el algoritmo ECDSA para la autorización de operaciones.
+
+4. SEGURIDAD Y AUDITORÍA DESCENTRALIZADA:
+   Estudio de métodos para la prevención de ataques críticos:
+   - Doble gasto (voto duplicado).
+   - Inyección de transacciones fraudulentas.
+   - Implementación de sistemas de auditoría pública para la validación de 
+     resultados por terceros de forma independiente.
+
+================================================================================
+FIN DEL APARTADO 1.4
+================================================================================

@@ -1,0 +1,74 @@
+================================================================================
+CAPÍTULO 4: PRUEBAS Y VALIDACIÓN DEL SISTEMA
+SECCIÓN: 4.1 ESTRATEGIA DE PRUEBAS
+================================================================================
+
+La estrategia de validación se diseñó bajo un enfoque de Pirámide de Pruebas, 
+priorizando la detección temprana de errores lógicos y vulnerabilidades de 
+seguridad. 
+
+Dado el carácter híbrido del sistema, se establecieron dos ecosistemas de 
+pruebas independientes pero complementarios: uno orientado a la robustez 
+operativa (Web2) y otro a la integridad criptográfica (Web3).
+
+--------------------------------------------------------------------------------
+4.1.1 PRUEBAS DE BACKEND (ECOSISTEMA NESTJS CON JEST)
+--------------------------------------------------------------------------------
+
+Para el servidor, se utilizó Jest como motor principal debido a su integración 
+nativa con TypeScript y su capacidad para generar informes de cobertura:
+
+* PRUEBAS UNITARIAS (UNIT TESTING): 
+    Centradas en la lógica aislada de los servicios. Especial atención recibió 
+    el `MerkleService`, donde se testearon casos de borde en la generación de 
+    la Raíz de Merkle y las Pruebas de Inclusión (Keccak-256).
+* PRUEBAS DE INTEGRACIÓN: 
+    Validación del flujo entre controladores y PostgreSQL. Se simularon 
+    escenarios de concurrencia para verificar que los interceptores de NestJS 
+    y las restricciones de la base de datos mantengan la unicidad.
+* MOCKING DE SERVICIOS EXTERNOS: 
+    Se emplearon "Mocks" para simular la respuesta del Smart Contract, 
+    permitiendo probar la lógica de negocio del servidor sin incurrir en 
+    latencias de red ni consumo de gas.
+
+--------------------------------------------------------------------------------
+4.1.2 PRUEBAS DE CONTRATOS INTELIGENTES (CHAI & MOCHA CON HARDHAT)
+--------------------------------------------------------------------------------
+
+La validación en Solidity requiere un rigor extremo debido a la inmutabilidad. 
+Se utilizó Hardhat junto a Mocha y Chai para las aserciones:
+
+
+
+* VALIDACIÓN DE MODIFICADORES: 
+    Scripts de intento de invocación de funciones administrativas (como 
+    `createElection`) desde billeteras no autorizadas, confirmando el 
+    `revert` ante violaciones de `onlyAdmin`.
+* PRUEBAS DE ESTRÉS DEL CUÁDRUPLE CANDADO: 
+    Suite específica para `castVote` ejecutando casos de:
+    - Votos con firmas ECDSA alteradas.
+    - Votos con Merkle Proofs pertenecientes a otros usuarios.
+    - Intentos de doble voto (misma identidad, diferente wallet y viceversa).
+* ANÁLISIS DE CONSUMO DE GAS: 
+    Uso de `hardhat-gas-reporter` para medir el costo de cada función. Esto 
+    permitió ajustar la lógica (paso de `memory` a `calldata`) para optimizar 
+    el costo del sufragio institucional.
+
+--------------------------------------------------------------------------------
+4.1.3 ENTORNO DE INTEGRACIÓN CONTINUA (CI)
+--------------------------------------------------------------------------------
+
+Para garantizar la estabilidad a largo plazo, se definieron umbrales de 
+aceptación técnicos:
+
+* COBERTURA DE CÓDIGO (COVERAGE): 
+    Mínimo del 80% en ramas críticas, especialmente en los módulos de 
+    Autenticación (Auth) y comunicación Blockchain.
+* DETERMINISMO CRIPTOGRÁFICO: 
+    Validación de que, ante un mismo conjunto de votantes, la Raíz de Merkle 
+    generada en TypeScript coincida bit a bit con la reconstrucción 
+    realizada por el Smart Contract en Solidity.
+
+================================================================================
+FIN DEL APARTADO 4.1
+================================================================================

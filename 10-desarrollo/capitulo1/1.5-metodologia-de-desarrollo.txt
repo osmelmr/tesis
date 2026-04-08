@@ -1,0 +1,73 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.5 METODOLOGÍA DE DESARROLLO: SCRUM
+================================================================================
+
+Para la ejecución de este proyecto, se seleccionó Scrum como marco de trabajo 
+ágil. Esta elección se fundamenta en la naturaleza iterativa e incremental del 
+desarrollo de software moderno, necesaria al integrar tecnologías emergentes 
+donde los requisitos de seguridad exigen una validación constante.
+
+--------------------------------------------------------------------------------
+1.5.1 ROLES Y ARTEFACTOS EN EL CONTEXTO DE LA TESIS
+--------------------------------------------------------------------------------
+
+Aunque el desarrollo es individual, se adoptan los principios de Scrum para 
+estructurar el avance del proyecto mediante los siguientes artefactos:
+
+* PRODUCT BACKLOG: 
+    Inventario dinámico de todas las funcionalidades y requisitos. Se organiza 
+    priorizando el "Cuádruple Candado" de seguridad y la lógica del Smart 
+    Contract para mitigar riesgos técnicos tempranamente.
+
+* SPRINT BACKLOG: 
+    Conjunto de Historias de Usuario (HU) seleccionadas para una iteración de 
+    dos semanas. Cada ciclo culmina con un incremento de software funcional 
+    (ej. módulo de autenticación o contrato desplegado en Testnet).
+
+--------------------------------------------------------------------------------
+1.5.2 ESTIMACIÓN MEDIANTE PUNTOS DE HISTORIA (SUCESIÓN DE FIBONACCI)
+--------------------------------------------------------------------------------
+
+Para cuantificar el esfuerzo, se utiliza la técnica de Puntos de Historia en 
+lugar de horas-hombre, basándose en la Complejidad, Incertidumbre y Esfuerzo.
+
+* LA SUCESIÓN DE FIBONACCI: 
+    Se asignan valores (1, 2, 3, 5, 8, 13...) a las HU. Una tarea con valor 
+    "8" (ej. integración de Merkle Proofs) implica mayor riesgo técnico e 
+    investigación que una de valor "2" (ej. diseño de vistas en Next.js).
+
+* JUSTIFICACIÓN TÉCNICA: 
+    Este método permite medir la "Velocidad del Sprint" y ajustar las 
+    expectativas de entrega de forma realista ante la complejidad de la 
+    arquitectura híbrida.
+
+--------------------------------------------------------------------------------
+1.5.3 CEREMONIAS E ITERACIONES DEL SISTEMA HÍBRIDO
+--------------------------------------------------------------------------------
+
+El desarrollo se estructuró en ciclos iterativos para la integración progresiva 
+de las dos capas del sistema:
+
+1. ITERACIONES DE CIMIENTOS (WEB2): 
+   Enfoque en arquitectura NestJS, modelos PostgreSQL y frontend base.
+2. ITERACIONES DE LÓGICA CRIPTOGRÁFICA (WEB3): 
+   Desarrollo de Smart Contracts en Solidity, pruebas en Hardhat y lógica 
+   de Merkle Trees.
+3. ITERACIONES DE INTEGRACIÓN Y CIERRE: 
+   Conexión de ambas capas y ejecución de pruebas extremo a extremo (E2E).
+
+--------------------------------------------------------------------------------
+1.5.4 DEFINICIÓN DE HECHO (DEFINITION OF DONE - DOD)
+--------------------------------------------------------------------------------
+
+Para asegurar la calidad, una funcionalidad se considera "Terminada" solo si:
+
+* CÓDIGO: Cumple estándares de TypeScript (ESLint) y Solidity.
+* COBERTURA: Los Smart Contracts superan el 100% de las pruebas unitarias.
+* COMPATIBILIDAD: Funcionalidad responsive e integrada con Web3 Providers.
+* DOCUMENTACIÓN: Diagramas técnicos y documentación de código actualizados.
+
+================================================================================
+FIN DEL APARTADO 1.5
+================================================================================

@@ -1,0 +1,61 @@
+================================================================================
+CONCLUSIONES Y RECOMENDACIONES
+Punto: Recomendaciones (Futuras líneas de investigación)
+================================================================================
+
+A partir de los resultados obtenidos y las limitaciones identificadas durante el 
+desarrollo del sistema de votación híbrido, se proponen las siguientes líneas 
+de investigación para evolucionar la plataforma hacia estándares de seguridad 
+y privacidad aún más estrictos.
+
+1. Integración de Zero-Knowledge Proofs (ZKP)
+--------------------------------------------------------------------------------
+La recomendación técnica más crítica es la transición del modelo de Merkle 
+Tree hacia las Pruebas de Conocimiento Cero (específicamente zk-SNARKs).
+- Objetivo: Permitir que un elector demuestre que posee un voto válido y que 
+  pertenece a la Whitelist sin revelar absolutamente ninguna información 
+  relacionada con su identidad o su posición en el árbol.
+- Impacto: Esto eliminaría la necesidad de que el backend firme un ticket 
+  (ECDSA), eliminando cualquier rastro de relación entre la base de datos 
+  centralizada y la transacción en la Blockchain, logrando un anonimato 
+  matemático total.
+
+
+
+2. Implementación de Identidad Digital Soberana (SSI)
+--------------------------------------------------------------------------------
+Se recomienda explorar el uso de Identificadores Descentralizados (DIDs) y 
+Credenciales Verificables (VCs).
+- Objetivo: Que el estudiante sea dueño de su propia identidad digital en una 
+  billetera personal, sin depender de un inicio de sesión en un servidor 
+  universitario central.
+- Impacto: Reducción del riesgo de ataques de denegación de servicio (DoS) al 
+  servidor de autenticación y mayor autonomía del usuario.
+
+3. Gobernanza mediante DAO (Decentralized Autonomous Organization)
+--------------------------------------------------------------------------------
+Evolucionar la lógica del Smart Contract para permitir una gobernanza 
+distribuida de los parámetros electorales.
+- Objetivo: Que la creación de nuevas elecciones y la definición de las reglas 
+  no dependan de una única "Clave de Administrador", sino del consenso de un 
+  consejo electoral mediante firmas múltiples (Multi-sig).
+
+4. Optimización de Capa 3 y Privacidad de Datos
+--------------------------------------------------------------------------------
+Investigar el despliegue en Capas 3 (App-chains específicas) o el uso de 
+redes de privacidad como Aztec o Aleo.
+- Objetivo: Ocultar no solo la identidad del votante, sino también el conteo 
+  parcial de los votos en tiempo real para evitar que la tendencia del 
+  escrutinio influya en los electores que aún no han votado.
+
+5. Auditoría Externa y Bug Bounty
+--------------------------------------------------------------------------------
+Se recomienda someter el código del Smart Contract a una auditoría formal por 
+terceros y lanzar programas de recompensas por errores (Bug Bounty) dentro de 
+la comunidad universitaria.
+- Impacto: Fortalecimiento de la confianza institucional y detección proactiva 
+  de vulnerabilidades de día cero antes de procesos electorales reales.
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================

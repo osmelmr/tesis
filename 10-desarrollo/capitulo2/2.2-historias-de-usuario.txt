@@ -1,0 +1,63 @@
+================================================================================
+CAPÍTULO 2: ANÁLISIS Y DISEÑO DEL SISTEMA
+SECCIÓN: 2.2 HISTORIAS DE USUARIO Y PRODUCT BACKLOG
+================================================================================
+
+El Product Backlog representa el listado priorizado de funcionalidades que 
+componen el sistema de votación híbrido. Para su estimación, se ha utilizado 
+la Sucesión de Fibonacci, asignando puntos de historia basados en la 
+complejidad técnica, el esfuerzo y la incertidumbre.
+
+--------------------------------------------------------------------------------
+TABLA DEL PRODUCT BACKLOG PRIORIZADO
+--------------------------------------------------------------------------------
+
+| ID    | HISTORIA DE USUARIO         | PRIORIDAD  | PUNTOS (FIBONACCI) |
+|-------|-----------------------------|------------|--------------------|
+| HU-01 | Configuración de Elección   | Alta       | 3                  |
+| HU-02 | Gestión de Candidatos       | Media      | 2                  |
+| HU-03 | Generación de Whitelist     | Muy Alta   | 8                  |
+| HU-04 | Despliegue de Smart Contract| Muy Alta   | 5                  |
+| HU-05 | Autenticación y Perfil      | Alta       | 3                  |
+| HU-06 | Validación de Merkle Proof  | Muy Alta   | 8                  |
+| HU-07 | Emisión de Voto (Web3)      | Muy Alta   | 13                 |
+| HU-08 | Prevención de Doble Voto    | Muy Alta   | 5                  |
+| HU-09 | Visualización de Escrutinio | Media      | 3                  |
+
+--------------------------------------------------------------------------------
+2.2.1 DETALLE DE HISTORIAS DE USUARIO CRÍTICAS
+--------------------------------------------------------------------------------
+
+Para garantizar que el desarrollo cumpla con el rigor científico, se detallan 
+los criterios de aceptación de las HU con mayor complejidad técnica:
+
+HU-03: GENERACIÓN DE WHITELIST (8 PUNTOS)
+-----------------------------------------
+* Criterio 1: El sistema debe procesar una lista de IDs de estudiantes y 
+    convertirlos en hashes únicos mediante el algoritmo Keccak-256.
+* Criterio 2: Se debe construir el Árbol de Merkle de forma balanceada y 
+    extraer una única Raíz (Root Hash).
+* Criterio 3: La raíz generada debe persistirse en la base de datos Web2 para 
+    su posterior anclaje y validación en el Smart Contract.
+
+HU-07: EMISIÓN DE VOTO - WEB3 (13 PUNTOS)
+-----------------------------------------
+* Criterio 1: El frontend (Next.js) debe solicitar la firma de la transacción 
+    a través de un Web3 Provider estándar (ej. MetaMask).
+* Criterio 2: El sistema debe adjuntar la Merkle Proof generada en el backend 
+    a la transacción enviada a Solidity.
+* Criterio 3: La transacción debe ser minada con éxito en la red de prueba, 
+    devolviendo un Hash de Transacción (Tx Hash) al usuario como comprobante.
+
+HU-08: PREVENCIÓN DE DOBLE VOTO (5 PUNTOS)
+------------------------------------------
+* Criterio 1: El Smart Contract debe implementar un mapping(bytes32 => bool) 
+    para registrar los identificadores de usuarios que ya han ejercido su voto.
+* Criterio 2: Si un usuario intenta votar nuevamente con la misma prueba, la 
+    función de Solidity debe ejecutar un "revert" con un mensaje de error claro.
+* Criterio 3: El estado de participación del votante debe ser consultable de 
+    forma pública on-chain para propósitos de auditoría.
+
+================================================================================
+FIN DEL APARTADO 2.2
+================================================================================

@@ -1,0 +1,67 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.6 JUSTIFICACIÓN Y NOVEDAD CIENTÍFICA
+================================================================================
+
+La presente investigación se justifica por la necesidad de superar las 
+limitaciones críticas de los sistemas de gestión de información convencionales 
+frente a escenarios donde la confianza y la integridad son innegociables. 
+
+La novedad científica radica en la implementación de una arquitectura híbrida 
+que trasciende el modelo de persistencia tradicional.
+
+--------------------------------------------------------------------------------
+1.6.1 INSUFICIENCIA DE LOS MODELOS CRUD TRADICIONALES
+--------------------------------------------------------------------------------
+
+La mayoría de los sistemas actuales operan bajo el paradigma CRUD (Create, Read, 
+Update, Delete) en bases de datos centralizadas, lo cual presenta deficiencias 
+estructurales para procesos electorales:
+
+* MUTABILIDAD DE LOS DATOS: Un administrador con privilegios puede alterar 
+    (Update) o eliminar (Delete) votos sin dejar una huella auditable externa.
+* FALTA DE TRANSPARENCIA ACTIVA: El elector carece de capacidad para verificar 
+    de forma independiente si su voto fue procesado correctamente.
+* PUNTO ÚNICO DE FALLA: La integridad depende exclusivamente del perímetro 
+    del servidor institucional; su compromiso invalida todo el proceso.
+
+--------------------------------------------------------------------------------
+1.6.2 EL ÁRBOL DE MERKLE COMO GARANTE DE PRIVACIDAD Y EFICIENCIA
+--------------------------------------------------------------------------------
+
+El uso de Árboles de Merkle (Merkle Trees) para la gestión del censo electoral 
+(Whitelist) permite:
+
+* PRIVACIDAD DEL CENSO: Se ancla en la Blockchain una única huella digital 
+    (Merkle Root) en lugar de datos sensibles de miles de estudiantes.
+* PRUEBAS DE INCLUSIÓN COMPACTAS: Los estudiantes demuestran su derecho al 
+    voto mediante una "Merkle Proof" (ruta de hashes), optimizando el 
+    almacenamiento on-chain y protegiendo la identidad.
+
+--------------------------------------------------------------------------------
+1.6.3 BLOCKCHAIN PARA LA INMUTABILIDAD DE RESULTADOS
+--------------------------------------------------------------------------------
+
+La integración con la red Ethereum aporta una capa de seguridad superior al 
+software tradicional:
+
+* INMUTABILIDAD POST-EMISIÓN: Una vez que un voto supera el "Cuádruple 
+    Candado" y se mina, es físicamente imposible de borrar o modificar.
+* AUDITORÍA PÚBLICA DESCENTRALIZADA: Se desplaza la confianza desde la 
+    "honestidad del administrador" hacia la "verificación matemática". 
+    Cualquier actor puede validar que los contadores coinciden con las 
+    transacciones.
+
+--------------------------------------------------------------------------------
+1.6.4 VALOR INSTITUCIONAL Y SOCIAL
+--------------------------------------------------------------------------------
+
+Esta tesis justifica su impacto al ofrecer una herramienta que fomenta la 
+participación democrática en la UCI. Al eliminar la barrera de la 
+presencialidad y sustituirla por un sistema tecnológicamente superior, se eleva 
+la confianza del estudiantado en sus instituciones y se sientan las bases para 
+la gobernanza digital.
+
+================================================================================
+FIN DEL APARTADO 1.6
+================================================================================

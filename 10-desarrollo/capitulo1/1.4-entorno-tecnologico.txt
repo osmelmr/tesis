@@ -1,0 +1,67 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.4 ENTORNO TECNOLÓGICO
+================================================================================
+
+La selección del conjunto de tecnologías para este proyecto responde a la 
+necesidad de crear una infraestructura robusta, modular y capaz de gestionar la 
+comunicación entre el mundo web tradicional y la red descentralizada.
+
+--------------------------------------------------------------------------------
+1.4.1 NESTJS: EXCELENCIA Y MODULARIDAD EN EL BACKEND
+--------------------------------------------------------------------------------
+
+NestJS es un framework de Node.js progresivo diseñado para construir 
+aplicaciones del lado del servidor eficientes y escalables.
+
+* ARQUITECTURA MODULAR: Permite separar la lógica de negocio (usuarios, 
+    elecciones, candidatos) de la lógica criptográfica (Merkle Trees y ECDSA).
+* TIPADO FUERTE CON TYPESCRIPT: Garantiza la integridad de los datos en tiempo 
+    de desarrollo, reduciendo errores en la manipulación de hashes y tickets.
+* SEGURIDAD Y MIDDLEWARE: Facilita la implementación de guardias (Guards) y 
+    estrategias de autenticación (JWT) para proteger el acceso al sistema.
+
+--------------------------------------------------------------------------------
+1.4.2 NEXT.JS: EXPERIENCIA DE USUARIO Y RENDIMIENTO EN EL FRONTEND
+--------------------------------------------------------------------------------
+
+Para la interfaz de usuario se utiliza Next.js, framework de React que optimiza 
+la entrega de contenido y la interacción con el cliente.
+
+* RENDERIZADO DEL LADO DEL SERVIDOR (SSR): Permite cargar los datos de las 
+    elecciones activas de forma instantánea, mejorando la percepción de velocidad.
+* OPTIMIZACIÓN DE CARGA: El "Code Splitting" asegura que las librerías Web3 
+    (Ethers.js/Viem) solo se carguen durante la interacción con la billetera.
+* INTEGRACIÓN CON PROVIDERS: Entorno fluido para conectar Web3 Providers 
+    (MetaMask), haciendo que la firma de transacciones sea intuitiva.
+
+--------------------------------------------------------------------------------
+1.4.3 SOLIDITY: EL ESTÁNDAR DE ORO PARA CONTRATOS INTELIGENTES
+--------------------------------------------------------------------------------
+
+Solidity es el lenguaje orientado a objetos diseñado específicamente para 
+escribir contratos inteligentes en la Ethereum Virtual Machine (EVM).
+
+* DETERMINISMO E INMUTABILIDAD: Permite definir reglas de negocio que ejecutan 
+    el "Cuádruple Candado" (Merkle Proof, Firmas, Unicidad y Temporalidad).
+* GESTIÓN DE ESTADOS: Almacenamiento (Storage) eficiente on-chain, asegurando 
+    que los contadores de votos y registros de unicidad sean resistentes a censura.
+* ECOSISTEMA DE AUDITORÍA: Compatibilidad con herramientas de prueba y 
+    librerías de seguridad (OpenZeppelin) para prevenir vulnerabilidades.
+
+--------------------------------------------------------------------------------
+1.4.4 HERRAMIENTAS COMPLEMENTARIAS Y PERSISTENCIA
+--------------------------------------------------------------------------------
+
+Para cohesionar el sistema híbrido, se integran las siguientes herramientas:
+
+* POSTGRESQL: Persistencia de datos Web2 (censo detallado, metadatos y 
+    evidencias de auditoría), permitiendo consultas complejas de bajo costo.
+* ETHERS.JS / VIEM: Librerías de comunicación que actúan como puente entre 
+    el código JavaScript y los nodos de la red Ethereum.
+* HARDHAT: Entorno de desarrollo para compilar, desplegar y realizar pruebas 
+    unitarias de los Smart Contracts en entornos de prueba (Testnets).
+
+================================================================================
+FIN DEL APARTADO 1.4
+================================================================================

@@ -1,0 +1,33 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.5.2 OBJETIVOS ESPECÍFICOS
+================================================================================
+
+1. FUNDAMENTACIÓN TEÓRICA Y TÉCNICA:
+   Establecer los principios de la tecnología Blockchain, los contratos 
+   inteligentes y las estructuras de datos criptográficas (Árboles de Merkle), 
+   determinando su pertinencia como solución a los problemas de centralización 
+   y falta de transparencia en los sistemas de votación actuales.
+
+2. DISEÑO DE LA ARQUITECTURA HÍBRIDA:
+   Diseñar una arquitectura de software que articule de manera eficiente la 
+   persistencia de datos relacionales (Web2) con el anclaje de integridad en 
+   una red descentralizada (Web3), definiendo el protocolo de "Cuádruple 
+   Candado" para la validación de los votos.
+
+3. IMPLEMENTACIÓN DEL SISTEMA:
+   Desarrollar los componentes integrales del ecosistema:
+   - Backend: Gestión del censo y generación de pruebas criptográficas.
+   - Smart Contract: Registro inmutable de votos en la red.
+   - Interfaz de Usuario: Interacción fluida con proveedores de Web3.
+
+4. VALIDACIÓN Y SEGURIDAD:
+   Validar la funcionalidad del sistema mediante una estrategia de pruebas 
+   unitarias y de integración, verificando la resistencia de la solución ante:
+   - Intentos de duplicidad de votos (Doble gasto).
+   - Alteración de datos persistidos.
+   - Accesos no autorizados al sistema.
+
+================================================================================
+FIN DEL APARTADO 1.5.2
+================================================================================

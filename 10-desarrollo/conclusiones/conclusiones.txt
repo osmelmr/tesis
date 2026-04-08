@@ -1,0 +1,59 @@
+================================================================================
+CONCLUSIONES Y RECOMENDACIONES
+Punto: Conclusiones (Logros basados en objetivos específicos)
+================================================================================
+
+Tras la culminación del diseño, desarrollo y fase de pruebas del sistema de 
+votación híbrido, se presentan las conclusiones derivadas del cumplimiento de 
+los objetivos trazados al inicio de la investigación.
+
+1. Cumplimiento de los Objetivos Específicos
+--------------------------------------------------------------------------------
+
+Objetivo 1: Diagnóstico de vulnerabilidades en sistemas tradicionales.
+- LOGRO: Se identificó que la centralización de datos en sistemas CRUD (Create, 
+  Read, Update, Delete) convencionales permite la alteración de registros por 
+  administradores con privilegios elevados. La implementación de la Blockchain 
+  como "Log" de solo escritura resolvió esta brecha de seguridad.
+
+Objetivo 2: Diseño de una arquitectura híbrida Web2/Web3.
+- LOGRO: Se logró una separación efectiva de responsabilidades. La Web2 (NestJS 
+  y PostgreSQL) gestiona eficientemente el censo institucional (Whitelist), 
+  mientras que la Web3 (Smart Contracts) garantiza la inmutabilidad del conteo. 
+  Esta arquitectura permite escalar a miles de votantes con un costo operativo 
+  mínimo.
+
+Objetivo 3: Implementación del Protocolo de Seguridad (Cuatro Candados).
+- LOGRO: La integración de Merkle Trees para la validación de pertenencia al 
+  censo y de firmas ECDSA para la autorización de origen, blindó el proceso 
+  contra votos duplicados, inyección de datos externos y suplantación de 
+  identidad. Las pruebas de reversión en Hardhat confirmaron la eficacia de 
+  estos controles.
+
+Objetivo 4: Validación de la usabilidad y viabilidad económica.
+- LOGRO: Mediante el Gas Profiling, se demostró que el uso de Capas 2 (L2) hace 
+  que el sistema sea económicamente viable para la universidad, con costos por 
+  voto inferiores a 0.01 USD. La interfaz en Next.js con integración de Web3 
+  Providers resultó intuitiva, abstrayendo la complejidad criptográfica para 
+  el elector común.
+
+2. Aporte de la Investigación
+--------------------------------------------------------------------------------
+El principal aporte de este trabajo es la demostración de que es posible 
+construir un sistema de votación institucional que respete la privacidad del 
+usuario (mediante el anonimato de las pruebas de Merkle) y ofrezca una auditoría 
+pública en tiempo real (mediante el explorador de bloques). 
+
+
+
+3. Síntesis Final
+--------------------------------------------------------------------------------
+Se concluye que la tecnología Blockchain no debe ser vista como un reemplazo 
+total de los sistemas existentes, sino como una capa de confianza superior. El 
+modelo propuesto resuelve el conflicto entre la "eficiencia de gestión" y la 
+"integridad de los resultados", sentando las bases para una transformación 
+digital democrática dentro de la Universidad de las Ciencias Informáticas (UCI).
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================

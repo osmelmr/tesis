@@ -1,0 +1,82 @@
+================================================================================
+CAPÍTULO 5: ANÁLISIS DE SEGURIDAD Y RESULTADOS
+SECCIÓN: 5.3 VIABILIDAD Y SOSTENIBILIDAD EN REDES DE CAPA 2 (L2)
+================================================================================
+
+La viabilidad técnica de un sistema de votación basado en Blockchain no solo se 
+mide por su seguridad, sino por su capacidad de escalar al volumen de una 
+comunidad universitaria sin que los costos operativos sean prohibitivos. 
+
+Se evaluó la sostenibilidad del protocolo en soluciones de escalado de Capa 2 
+(Layer 2) como Arbitrum, Optimism o Polygon (zkEVM).
+
+--------------------------------------------------------------------------------
+5.3.1 EFICIENCIA DE COSTOS EN L2 VS. MAINNET
+--------------------------------------------------------------------------------
+
+Las redes L2 procesan las transacciones fuera de la cadena principal y agrupan 
+los datos para anclarlos en la Capa 1, reduciendo drásticamente las tarifas. 
+Considerando el consumo de **~92,500 gas** por voto, la comparativa es:
+
+* ETHEREUM MAINNET: 
+    Con un gas de 20-40 Gwei, el costo por voto oscila entre **$2.00 y $5.00 
+    USD**. Para 10,000 estudiantes, el costo superaría los $20,000 USD, 
+    siendo inviable institucionalmente.
+* REDES DE CAPA 2 (ROLLUPS): 
+    En redes como Arbitrum o Polygon, el costo de la misma transacción se 
+    reduce a fracciones de centavo (**$0.001 - $0.01 USD**). Una elección 
+    de 10,000 votantes tendría un costo operativo inferior a **$100.00 USD**.
+
+
+
+--------------------------------------------------------------------------------
+5.3.2 ESCALABILIDAD Y RENDIMIENTO (THROUGHPUT)
+--------------------------------------------------------------------------------
+
+La viabilidad depende de la velocidad de respuesta durante picos de 
+participación (ej. cierre de jornada electoral):
+
+1. LATENCIA DE CONFIRMACIÓN: Mientras que en Mainnet un voto tarda minutos, 
+   las L2 ofrecen una "finalidad suave" casi instantánea (1-2 segundos), 
+   mejorando la reactividad de la interfaz en Next.js.
+2. ANCHO DE BANDA TRANSACCIONAL: Las soluciones L2 procesan miles de 
+   transacciones por segundo (TPS), superando las 15-30 TPS de la red 
+   principal. Esto garantiza que el sistema no se sature ante flujos 
+   simultáneos de múltiples facultades.
+
+--------------------------------------------------------------------------------
+5.3.3 SOSTENIBILIDAD DE LA INFRAESTRUCTURA HÍBRIDA
+--------------------------------------------------------------------------------
+
+La arquitectura propuesta refuerza la viabilidad a largo plazo mediante:
+
+* INDEPENDENCIA DE PROVEEDORES: El sistema es compatible con cualquier red 
+    EVM. Si una red aumenta costos, el Smart Contract puede ser desplegado 
+    en otra L2 con cambios mínimos en el Backend.
+* REDUCCIÓN DE LA DEUDA TÉCNICA: Al utilizar estándares (OpenZeppelin, 
+    Ethers.js), el mantenimiento no requiere criptografía avanzada, sino 
+    competencias estándar en el ecosistema JavaScript/Solidity.
+* AUDITORÍA DE BAJO COSTO: Gracias a la Whitelist basada en Merkle Roots, 
+    los auditores externos verifican la integridad descargando apenas unos 
+    kilobytes de la blockchain, facilitando la transparencia.
+
+--------------------------------------------------------------------------------
+5.3.4 CONCLUSIÓN DE VIABILIDAD
+--------------------------------------------------------------------------------
+
+El análisis demuestra que el sistema cumple con los tres pilares de la 
+ingeniería de software:
+
+| Pilar | Validación Técnica |
+| :--- | :--- |
+| **Técnicamente Posible** | Seguridad criptográfica y "Cuádruple Candado". |
+| **Económicamente Rentable** | Sostenibilidad vía redes de Capa 2 (L2). |
+| **Operativamente Escalable** | Arquitectura híbrida y alto throughput de red. |
+
+La combinación de la robustez de Ethereum con la eficiencia de las Capas 2 
+posiciona a esta solución como una alternativa superior a los sistemas de 
+votación electrónica tradicionales y centralizados.
+
+================================================================================
+FIN DEL APARTADO 5.3
+================================================================================

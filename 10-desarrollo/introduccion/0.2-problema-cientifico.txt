@@ -1,0 +1,50 @@
+================================================================================
+CAPÍTULO 1: FUNDAMENTACIÓN TEÓRICA Y TECNOLÓGICA
+SECCIÓN: 1.2 PROBLEMA CIENTÍFICO
+================================================================================
+
+Tras el análisis de la situación problemática, se hace evidente que el núcleo 
+del conflicto no es solo la falta de una plataforma digital, sino la ausencia 
+de un protocolo de confianza verificable. Los sistemas actuales no pueden 
+garantizar simultáneamente la accesibilidad (voto remoto) y la seguridad 
+extrema (inmutabilidad y unicidad) sin depender de un administrador central.
+
+Esta contradicción técnica genera la necesidad de investigar cómo las 
+arquitecturas descentralizadas pueden sustituir la vigilancia humana por 
+reglas matemáticas inalterables. 
+
+--------------------------------------------------------------------------------
+INTERROGANTE CIENTÍFICA
+--------------------------------------------------------------------------------
+
+¿Cómo garantizar la integridad, transparencia y unicidad del voto en los 
+procesos electorales institucionales de la FEU en la UCI, mediante el diseño 
+e implementación de un sistema basado en tecnología Blockchain que elimine 
+la dependencia de entidades centralizadas y las barreras de la presencialidad 
+física?
+
+--------------------------------------------------------------------------------
+DIMENSIONES CRÍTICAS A RESOLVER
+--------------------------------------------------------------------------------
+
+Para dar solución a esta interrogante, es necesario abordar tres ejes que el 
+sistema actual no logra resolver satisfactoriamente:
+
+1. GARANTÍA DE INTEGRIDAD
+   ¿Cómo asegurar que los metadatos de la elección (candidatos, fechas y 
+   reglas) no sean alterados en la base de datos centralizada para favorecer 
+   a un actor específico?
+
+2. TRANSPARENCIA Y AUDITORÍA
+   ¿Cómo permitir que cualquier estudiante pueda verificar que su voto fue 
+   contado correctamente sin comprometer su anonimato y sin tener que confiar 
+   en el reporte emitido por un servidor institucional?
+
+3. CONTROL DE UNICIDAD (PREVENCIÓN DE DOBLE VOTO)
+   ¿Cómo impedir que un usuario emita más de un sufragio o que se suplante 
+   su identidad en el censo, utilizando estructuras de datos que sean 
+   resistentes a la manipulación administrativa?
+
+================================================================================
+FIN DEL APARTADO 1.2
+================================================================================

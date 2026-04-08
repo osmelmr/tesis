@@ -1,0 +1,79 @@
+================================================================================
+CAPÍTULO 2: ANÁLISIS Y DESARROLLO DEL SISTEMA
+SECCIÓN: 2.4 DISEÑO DE LA BASE DE DATOS (WEB2)
+================================================================================
+
+El diseño de la persistencia de datos para la capa Web2 se basa en un modelo 
+relacional gestionado por PostgreSQL. Su objetivo es administrar el ciclo de 
+vida de los eventos electorales y servir de soporte para la generación de 
+estructuras criptográficas.
+
+A diferencia de un sistema tradicional, esta base de datos no almacena los 
+votos finales, sino los metadatos y las piezas de las Merkle Proofs necesarias 
+para interactuar con el Smart Contract.
+
+--------------------------------------------------------------------------------
+2.4.1 DIAGRAMA ENTIDAD-RELACIÓN Y DESCRIPCIÓN DE TABLAS
+--------------------------------------------------------------------------------
+
+El modelo se organiza en torno a las siguientes entidades principales, 
+diseñadas para mantener la integridad referencial y la privacidad:
+
+* USERS / AUTH: 
+    Almacena los datos de identidad legal (Nombre, Usuario, Contraseña, Rol). 
+    Es la tabla de acceso, pero nunca se vincula directamente con la 
+    Blockchain para proteger la privacidad del elector.
+
+* ELECTIONS: 
+    Contiene la configuración de cada proceso (Título, Descripción, Fechas). 
+    Incluye el campo crítico "merkle_root", que se completa una vez que el 
+    censo es sellado criptográficamente.
+
+* CANDIDATES: 
+    Entidad vinculada a una elección. Almacena la información de los 
+    postulantes y su identificador numérico, el cual coincide con el índice 
+    de opciones dentro del Smart Contract.
+
+* WHITELIST (CENSO): 
+    Tabla puente de seguridad que relaciona "user_id" con "election_id". 
+    - Campo "user_hash": Hash único generado para cada votante en cada elección. 
+      Actúa como "hoja" en el Árbol de Merkle.
+    - Campo "has_voted_web2": Flag de control rápido para la interfaz, aunque 
+      la validación definitiva reside en la Blockchain.
+
+
+
+--------------------------------------------------------------------------------
+2.4.2 VÍNCULO ENTRE IDENTIDAD Y ANONIMATO: EL USER HASH
+--------------------------------------------------------------------------------
+
+Mecanismo técnico de desvinculación para garantizar el secreto del voto:
+
+1. PROCESO DE ANONIMIZACIÓN: 
+   El backend toma el ID institucional y lo combina con un "Salt" secreto 
+   único por elección, generando un hash mediante Keccak-256.
+
+2. ORIGEN DE LA RAÍZ: 
+   Los hashes de la tabla Whitelist alimentan el algoritmo de construcción 
+   del Árbol de Merkle. La "merkle_root" resultante es la que se almacena 
+   en la tabla Elections y se ancla on-chain.
+
+--------------------------------------------------------------------------------
+2.4.3 SEGURIDAD DE LA PERSISTENCIA
+--------------------------------------------------------------------------------
+
+Medidas implementadas para mitigar compromisos en la capa Web2:
+
+* INTEGRIDAD POR HASH: 
+    Cada registro de la Whitelist contribuye a la raíz anclada. Si un atacante 
+    modificara un registro en PostgreSQL, el hash no coincidiría con la raíz 
+    en el Smart Contract y la Blockchain rechazaría el voto automáticamente.
+
+* NORMALIZACIÓN Y RENDIMIENTO: 
+    Uso de índices en "user_hash" y "election_id" para asegurar que la 
+    generación de Merkle Proofs (búsqueda de rutas de hashes) sea una 
+    operación de alta velocidad, independientemente del volumen del censo.
+
+================================================================================
+FIN DEL APARTADO 2.4
+================================================================================

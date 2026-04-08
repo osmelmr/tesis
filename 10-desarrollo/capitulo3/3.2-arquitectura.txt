@@ -1,0 +1,71 @@
+================================================================================
+CAPÍTULO 3: IMPLEMENTACIÓN DEL SISTEMA
+SECCIÓN: 3.2 ARQUITECTURA DEL PROYECTO
+================================================================================
+
+La implementación del sistema se estructuró bajo un enfoque de separación de 
+preocupaciones (Separation of Concerns), permitiendo que cada componente 
+funcione de manera independiente pero perfectamente coordinada.
+
+--------------------------------------------------------------------------------
+3.2.1 ESTRUCTURA GLOBAL: ORGANIZACIÓN EN MONOREPO
+--------------------------------------------------------------------------------
+
+Para gestionar la complejidad de integrar tres ecosistemas distintos, se optó 
+por una estructura de Monorepo. Esta organización facilita que los tipos de 
+datos (TypeScript) y las ABIs de los contratos inteligentes se compartan 
+eficientemente entre el backend y el frontend.
+
+La jerarquía de directorios se define de la siguiente manera:
+
+* /apps/web (Next.js): Lógica de la interfaz de usuario, componentes 
+    reactivos e integración con Web3 Providers (MetaMask).
+* /apps/api (NestJS): Servidor central, lógica de negocio, conexión a 
+    PostgreSQL y generador de Árboles de Merkle.
+* /packages/blockchain (Hardhat/Foundry): Contratos en Solidity, scripts de 
+    despliegue y pruebas de seguridad on-chain.
+* /packages/shared: Librerías comunes con interfaces y utilitarios 
+    criptográficos compartidos.
+
+--------------------------------------------------------------------------------
+3.2.2 COMUNICACIÓN MODULAR: INTERFAZ RPC Y SERVICIOS
+--------------------------------------------------------------------------------
+
+La interacción entre componentes ocurre a través de diversos protocolos:
+
+1. REST API (HTTP/JSON): Comunicación estándar entre Next.js y NestJS para 
+   tareas administrativas (consultar candidatos, autenticación, censo).
+2. INTERFAZ RPC (REMOTE PROCEDURE CALL): Canal crítico entre el software y la 
+   Blockchain. Se utilizan proveedores RPC (Alchemy, Infura o nodos locales) 
+   para leer el estado del contrato y enviar transacciones.
+3. INYECCIÓN DE PROVEEDOR (EIP-1193): El frontend detecta el proveedor 
+   inyectado (MetaMask) para permitir la firma de transacciones sin exponer 
+   la llave privada del usuario al sistema.
+
+--------------------------------------------------------------------------------
+3.2.3 ORQUESTACIÓN DEL FLUJO DE DATOS: DE LA UI AL MINADO
+--------------------------------------------------------------------------------
+
+El ciclo de vida de un voto sigue un proceso de orquestación híbrida:
+
+
+
+* PASO 1: SOLICITUD DE TICKET (FRONTEND → BACKEND): 
+    El usuario inicia sesión. El backend verifica su identidad en PostgreSQL 
+    y genera una Merkle Proof junto a un ticket firmado digitalmente.
+* PASO 2: PREPARACIÓN DE LA TRANSACCIÓN (FRONTEND): 
+    Next.js recibe la prueba. Utilizando Ethers.js, prepara la llamada a la 
+    función `castVote` del Smart Contract.
+* PASO 3: FIRMA DEL USUARIO (FRONTEND → WALLET): 
+    MetaMask solicita la firma del usuario, autorizando el consumo de gas y 
+    la ejecución de la lógica en la red.
+* PASO 4: PROPAGACIÓN Y CONSENSO (WALLET → BLOCKCHAIN): 
+    La transacción se envía al nodo RPC. Los validadores verifican el 
+    "Cuádruple Candado". Si Solidity valida con éxito, el voto se mina.
+* PASO 5: CONFIRMACIÓN Y SINCRONIZACIÓN (BLOCKCHAIN → UI): 
+    El sistema recibe el hash de la transacción. El frontend confirma al 
+    usuario que su voto es ahora inmutable y auditable.
+
+================================================================================
+FIN DEL APARTADO 3.2
+================================================================================

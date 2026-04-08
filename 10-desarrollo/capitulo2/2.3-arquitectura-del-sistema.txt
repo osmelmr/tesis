@@ -1,0 +1,73 @@
+================================================================================
+CAPÍTULO 2: ANÁLISIS Y DISEÑO DEL SISTEMA
+SECCIÓN: 2.3 ARQUITECTURA DEL SISTEMA: EL MODELO HÍBRIDO
+================================================================================
+
+La arquitectura del sistema se define como un modelo híbrido (Web2 + Web3), 
+diseñado para aprovechar la eficiencia de los sistemas centralizados y la 
+seguridad inexpugnable de las redes descentralizadas. 
+
+Esta dualidad permite resolver el trilema de la votación electrónica: 
+Escalabilidad, Privacidad y Seguridad.
+
+--------------------------------------------------------------------------------
+2.3.1 LA CAPA DE GESTIÓN Y PERSISTENCIA (WEB2)
+--------------------------------------------------------------------------------
+
+Construida con NestJS y PostgreSQL, actúa como el motor operativo del sistema 
+gestionando la complejidad administrativa:
+
+* GESTIÓN DE METADATOS: Almacena información descriptiva (nombres, fotos de 
+    candidatos, biografías) que requiere consultas rápidas desde el frontend.
+* ORQUESTACIÓN DEL CENSO: El backend procesa el listado de estudiantes 
+    (Whitelist) y genera el Árbol de Merkle, custodiando las piezas para que 
+    el usuario reconstruya su prueba de inclusión.
+* API GATEWAY: Punto de entrada único para el frontend, gestionando la 
+    autenticación (JWT) y sirviendo como puente de datos antes del envío a 
+    la red descentralizada.
+
+--------------------------------------------------------------------------------
+2.3.2 LA CAPA DE INTEGRIDAD Y CONSENSO (WEB3)
+--------------------------------------------------------------------------------
+
+Basada en la Blockchain de Ethereum y Smart Contracts en Solidity, actúa como 
+el "Juez Inmutable" del proceso:
+
+* ANCLAJE DE LA RAÍZ (MERKLE ROOT): Una vez cerrado el censo, la Merkle Root 
+    se envía al Smart Contract como un "precinto digital". A partir de ese 
+    momento, el censo es inalterable.
+* LÓGICA DE VOTACIÓN INMUTABLE: El contrato verifica que la elección esté 
+    activa, valida la firma del servidor, comprueba la Merkle Proof y marca 
+    la identidad como "ya votó".
+* ESCRUTINIO DESCENTRALIZADO: El conteo ocurre dentro de la EVM. Al ser 
+    público y distribuido, el resultado es auditable por cualquier nodo, 
+    eliminando la manipulación de bases de datos centralizadas.
+
+--------------------------------------------------------------------------------
+2.3.3 FLUJO DE SINCRONIZACIÓN HÍBRIDA
+--------------------------------------------------------------------------------
+
+La clave de la arquitectura es el Anclaje de Integridad mediante el siguiente 
+flujo:
+
+1. REGISTRO (WEB2): Creación y preparación de datos en NestJS.
+2. SELLADO (WEB3): Envío de hashes de integridad a la Blockchain para 
+   "congelar" la realidad de la elección.
+3. TRANSACCIÓN (HÍBRIDA): El usuario interactúa con Web2 para obtener su 
+   "Proof" y la envía a Web3 para registrar su voto.
+4. VERIFICACIÓN (WEB3): La Blockchain verifica el voto autónomamente usando 
+   la raíz anclada previamente, sin consultar al servidor central.
+
+--------------------------------------------------------------------------------
+2.3.4 JUSTIFICACIÓN FRENTE AL MODELO TRADICIONAL
+--------------------------------------------------------------------------------
+
+A diferencia de un sistema CRUD, donde el administrador tiene poder de edición, 
+en esta arquitectura el administrador pierde el control sobre el resultado una 
+vez iniciado el proceso. Aunque la base de datos Web2 fuera comprometida, la 
+legitimidad del proceso reside en la red descentralizada, garantizando la 
+veracidad del ejercicio electoral.
+
+================================================================================
+FIN DEL APARTADO 2.3
+================================================================================
